@@ -12,12 +12,13 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 ## **2. Core Modules**
 
 1. **Authentication & Roles**
-2. **Parking Lots & Slots**
-3. **Reservation & Check-in System**
-4. **Payments & Overstay Handling**
-5. **Notifications & Waitlist**
-6. **Analytics & Admin Dashboard**
-7. **System Automation (Cron Jobs)**
+2. **Location Hierarchy & Discovery** ⭐ NEW
+3. **Parking Lots & Slots**
+4. **Reservation & Check-in System**
+5. **Payments & Overstay Handling**
+6. **Notifications & Waitlist**
+7. **Analytics & Admin Dashboard**
+8. **System Automation (Cron Jobs)**
 
 ---
 
@@ -57,7 +58,84 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ---
 
-### **5.2 Parking Lots & Slots**
+### **5.2 Location Hierarchy & Discovery** ⭐ NEW
+
+Enable users to discover parking lots based on their location using a hierarchical dropdown system.
+
+#### **Location Hierarchy**
+
+```
+Division (Dhaka, Chittagong, etc.)
+  └── District (Dhaka, Gazipur, etc.)
+      └── Area (Uttara, Gulshan, Dhanmondi, etc.)
+          └── Parking Lots (specific facilities)
+```
+
+#### **User Experience Flow**
+
+1. **Default Location:**
+
+   - User saves preferred location during registration/profile setup
+   - App remembers: Division → District → Area
+   - Auto-loads parking lots from saved location on app open
+
+2. **Location Search:**
+   - User can change location using cascading dropdowns:
+     - Select **Division** → Loads relevant **Districts**
+     - Select **District** → Loads relevant **Areas**
+     - Select **Area** → Shows parking lots in that area
+3. **Dropdown Features:**
+
+   - Searchable (type to filter)
+   - Popular areas shown first (Gulshan, Uttara, etc.)
+   - Shows 5-10 items by default, scrollable for more
+
+4. **Auto-Detection (Future Enhancement):**
+   - Browser geolocation API gets user's lat/long
+   - Backend finds nearest area automatically
+   - Pre-fills dropdowns without manual selection
+
+#### **Database Models**
+
+**Division:**
+
+- `id`, `name`, `code`, `country`
+- Example: "Dhaka", "DHA", "Bangladesh"
+
+**District:**
+
+- `id`, `division_id` (FK), `name`, `code`
+- Example: "Dhaka District" → belongs to "Dhaka Division"
+
+**Area:**
+
+- `id`, `district_id` (FK), `name`, `type` (Residential/Commercial/Mixed)
+- `popular` (boolean) - for prioritizing in dropdown
+- `center_latitude`, `center_longitude` (optional - for auto-detection)
+- Example: "Uttara" → belongs to "Dhaka District"
+
+**User Profile Update:**
+
+- `default_division_id`, `default_district_id`, `default_area_id`
+- `latitude`, `longitude` (optional - from browser geolocation)
+
+**Parking Lot Update:**
+
+- `area_id` (FK) - replaces flat text `address`
+- `latitude`, `longitude` - exact GPS coordinates
+- `address` - street address within the area
+
+#### **Key Benefits**
+
+- ✅ No typos (pre-validated location data)
+- ✅ Fast filtering by area
+- ✅ Remembers user preferences
+- ✅ Scalable (add new areas without code changes)
+- ✅ Future-ready for maps integration
+
+---
+
+### **5.3 Parking Lots & Slots**
 
 #### **Parking Lot**
 
@@ -85,7 +163,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ---
 
-### **5.3 Reservation System**
+### **5.4 Reservation System**
 
 #### **Create Reservation**
 
@@ -124,7 +202,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ---
 
-### **5.4 Check-In & Check-Out Flow**
+### **5.5 Check-In & Check-Out Flow**
 
 #### **Check-In**
 
@@ -149,7 +227,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ---
 
-### **5.5 Overstay Handling**
+### **5.6 Overstay Handling**
 
 - Overstay detected if:
 
@@ -165,7 +243,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ---
 
-### **5.6 Payments**
+### **5.7 Payments**
 
 - Each reservation has a `payment` record.
 - Fields:
@@ -181,7 +259,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ---
 
-### **5.7 Waitlist System**
+### **5.8 Waitlist System**
 
 - When all slots are full:
 
@@ -197,7 +275,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ---
 
-### **5.8 Notifications**
+### **5.9 Notifications**
 
 Triggered automatically or manually:
 
@@ -211,7 +289,7 @@ For MVP: use in-app notifications or email simulation.
 
 ---
 
-### **5.9 Analytics (Admin Dashboard)**
+### **5.10 Analytics (Admin Dashboard)**
 
 Metrics to track:
 
@@ -259,13 +337,45 @@ USERS (
   password,
   role ENUM('user','admin'),
   default_vehicle_no,
+  default_division_id FK -> DIVISIONS.id,
+  default_district_id FK -> DISTRICTS.id,
+  default_area_id FK -> AREAS.id,
+  latitude DECIMAL,
+  longitude DECIMAL,
   created_at
+)
+
+DIVISIONS (
+  id PK,
+  name VARCHAR(100),
+  code VARCHAR(10),
+  country VARCHAR(100)
+)
+
+DISTRICTS (
+  id PK,
+  division_id FK -> DIVISIONS.id,
+  name VARCHAR(100),
+  code VARCHAR(10)
+)
+
+AREAS (
+  id PK,
+  district_id FK -> DISTRICTS.id,
+  name VARCHAR(100),
+  type ENUM('Residential','Commercial','Mixed'),
+  popular BOOLEAN,
+  center_latitude DECIMAL,
+  center_longitude DECIMAL
 )
 
 PARKING_LOTS (
   id PK,
   name,
-  address,
+  area_id FK -> AREAS.id,
+  address VARCHAR(500),
+  latitude DECIMAL,
+  longitude DECIMAL,
   total_slots,
   admin_id FK -> USERS.id
 )
@@ -329,8 +439,19 @@ NOTIFICATIONS (
 - `POST /auth/register`
 - `POST /auth/login`
 
+### **Locations** ⭐ NEW
+
+- `GET /locations/divisions`
+- `GET /locations/divisions/:divisionId/districts`
+- `GET /locations/districts/:districtId/areas`
+- `POST /locations/detect` (lat/long → area)
+- `PATCH /users/me/location` (save default location)
+
 ### **Slots & Lots**
 
+- `GET /lots?area_id=<uuid>` (filter by area)
+- `GET /lots?district_id=<uuid>` (filter by district)
+- `GET /lots/nearby?lat=<>&lon=<>&radius=<>` (nearby search)
 - `GET /lots`
 - `GET /lots/:id/slots`
 - `POST /lots/:id/slots` (Admin)
