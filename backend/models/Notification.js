@@ -22,22 +22,19 @@ const Notification = sequelize.define(
       },
     },
 
-    type: {
-      type: DataTypes.ENUM(
-        "reservation_confirmed",
-        "reservation_reminder",
-        "reservation_expired",
-        "check_in_reminder",
-        "overstay_warning",
-        "payment_receipt",
-        "payment_failed",
-        "waitlist_slot_available",
-        "waitlist_expired",
-        "system_announcement"
-      ),
+    // Template-based approach
+    template_id: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
 
+    // Data used to populate template
+    template_data: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+
+    // Generated title and message (from template)
     title: {
       type: DataTypes.STRING(200),
       allowNull: false,
@@ -48,7 +45,7 @@ const Notification = sequelize.define(
       allowNull: false,
     },
 
-    // Additional data (reservation_id, payment_id, etc.)
+    // Additional metadata (reservation_id, payment_id, etc.)
     metadata: {
       type: DataTypes.JSON,
       allowNull: true,
@@ -92,7 +89,7 @@ const Notification = sequelize.define(
         fields: ["user_id", "read", "createdAt"],
       },
       {
-        fields: ["type", "createdAt"],
+        fields: ["template_id", "createdAt"],
       },
       {
         fields: ["priority", "createdAt"],
@@ -145,7 +142,7 @@ Notification.prototype.sendEmail = async function () {
 Notification.prototype.getSummary = function () {
   return {
     id: this.id,
-    type: this.type,
+    template_id: this.template_id,
     title: this.title,
     message: this.message,
     read: this.read,
