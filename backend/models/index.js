@@ -1,5 +1,8 @@
 import sequelize from "../config/database.js";
 import User from "./User.js";
+import Division from "./Division.js";
+import District from "./District.js";
+import Area from "./Area.js";
 import ParkingLot from "./ParkingLot.js";
 import Slot from "./Slot.js";
 import Reservation from "./Reservation.js";
@@ -9,6 +12,9 @@ import Notification from "./Notification.js";
 
 const models = {
   User,
+  Division,
+  District,
+  Area,
   ParkingLot,
   Slot,
   Reservation,
@@ -17,7 +23,33 @@ const models = {
   Notification,
 };
 
-// Set up all associations
+// Set up location hierarchy associations
+Division.hasMany(District, {
+  foreignKey: "division_id",
+  as: "districts",
+});
+
+District.belongsTo(Division, {
+  foreignKey: "division_id",
+  as: "division",
+});
+
+District.hasMany(Area, {
+  foreignKey: "district_id",
+  as: "areas",
+});
+
+Area.belongsTo(District, {
+  foreignKey: "district_id",
+  as: "district",
+});
+
+Area.hasMany(ParkingLot, {
+  foreignKey: "area_id",
+  as: "parking_lots",
+});
+
+// Set up all other model associations
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
     models[modelName].associate(models);

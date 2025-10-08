@@ -333,13 +333,8 @@ export const seedLocations = async () => {
 
     // Check if data already exists
     const existingDivisions = await Division.count();
-    console.log(`📊 Found ${existingDivisions} existing divisions in database`);
-
     if (existingDivisions > 0) {
       console.log("⚠️  Location data already exists. Skipping seed.");
-      console.log(
-        "💡 To re-seed, delete existing data from divisions, districts, and areas tables."
-      );
       return;
     }
 
@@ -397,41 +392,13 @@ export const seedLocations = async () => {
   }
 };
 
-// Run seed if executed directly (cross-platform check)
-const isMainModule =
-  process.argv[1] &&
-  import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"));
-
-if (isMainModule || process.argv[1]?.includes("locationSeeder.js")) {
-  console.log("🚀 Starting seeder script...");
-
-  (async () => {
-    try {
-      console.log("📦 Importing models...");
-      const { sequelize } = await import("../models/index.js");
-      const models = (await import("../models/index.js")).default;
-      const { Division, District, Area } = models;
-
-      console.log("🔗 Connecting to database...");
-      await sequelize.authenticate();
-      console.log("✅ Database connected");
-
-      console.log("🔄 Syncing database schema...");
-      await sequelize.sync({ force: true }); // Drop and recreate all tables (WILL DELETE ALL DATA)
-      console.log("✅ Database synced - all tables recreated fresh");
-
-      console.log("🌱 Starting seed process...");
-      await seedLocations();
-
-      console.log("🔌 Closing database connection...");
-      await sequelize.close();
-      console.log("✅ Seeding completed successfully!");
-      process.exit(0);
-    } catch (error) {
-      console.error("❌ Seeder failed with error:", error);
-      process.exit(1);
-    }
-  })();
+// Run seed if executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const { sequelize } = await import("../models/index.js");
+  await sequelize.sync({ alter: true });
+  await seedLocations();
+  await sequelize.close();
+  process.exit(0);
 }
 
 export default seedLocations;

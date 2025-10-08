@@ -12,11 +12,13 @@ const Division = sequelize.define(
     name: {
       type: DataTypes.STRING(100),
       allowNull: false,
+      unique: true,
       comment: "Division name (e.g., Dhaka, Chittagong)",
     },
     code: {
       type: DataTypes.STRING(10),
       allowNull: false,
+      unique: true,
       comment: "Short code (e.g., DHA, CTG)",
     },
     country: {
