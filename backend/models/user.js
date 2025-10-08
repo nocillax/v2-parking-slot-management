@@ -51,6 +51,64 @@ const User = sequelize.define(
       defaultValue: "user",
       allowNull: false,
     },
+
+    // Default location fields for quick parking lot discovery
+    default_division_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "divisions",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
+      comment: "User's default division for parking search",
+    },
+
+    default_district_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "districts",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
+      comment: "User's default district for parking search",
+    },
+
+    default_area_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: "areas",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
+      comment: "User's default area for parking search",
+    },
+
+    // Geolocation for auto-detection and nearby search
+    latitude: {
+      type: DataTypes.DECIMAL(10, 8),
+      allowNull: true,
+      comment: "User's saved location latitude",
+      validate: {
+        min: -90,
+        max: 90,
+      },
+    },
+
+    longitude: {
+      type: DataTypes.DECIMAL(11, 8),
+      allowNull: true,
+      comment: "User's saved location longitude",
+      validate: {
+        min: -180,
+        max: 180,
+      },
+    },
   },
   {
     tableName: "users",
@@ -99,6 +157,38 @@ User.prototype.toJSON = function () {
   return values;
 };
 
+// Get user's default location with full hierarchy
+User.prototype.getDefaultLocation = async function () {
+  if (!this.default_area_id) return null;
+
+  const { Area, District, Division } = sequelize.models;
+  const area = await Area.findByPk(this.default_area_id, {
+    include: [
+      {
+        model: District,
+        include: [Division],
+      },
+    ],
+  });
+
+  if (!area) return null;
+
+  return {
+    division: {
+      id: area.District.Division.id,
+      name: area.District.Division.name,
+    },
+    district: {
+      id: area.District.id,
+      name: area.District.name,
+    },
+    area: {
+      id: area.id,
+      name: area.name,
+    },
+  };
+};
+
 // Define model relationships
 User.associate = (models) => {
   User.hasMany(models.Reservation, {
@@ -119,6 +209,22 @@ User.associate = (models) => {
   User.hasMany(models.ParkingLot, {
     foreignKey: "admin_id",
     as: "managed_lots",
+  });
+
+  // Location hierarchy relationships
+  User.belongsTo(models.Division, {
+    foreignKey: "default_division_id",
+    as: "default_division",
+  });
+
+  User.belongsTo(models.District, {
+    foreignKey: "default_district_id",
+    as: "default_district",
+  });
+
+  User.belongsTo(models.Area, {
+    foreignKey: "default_area_id",
+    as: "default_area",
   });
 };
 
