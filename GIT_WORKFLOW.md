@@ -3,23 +3,30 @@
 ## Branch Naming Convention
 
 ### Feature Branches
+
 ```
 feat/<feature-name>
 ```
+
 **Examples:**
+
 - `feat/location-hierarchy`
 - `feat/user-authentication`
 - `feat/reservation-system`
 
 ### Bug Fix Branches
+
 ```
 fix/<issue-description>
 ```
+
 **Examples:**
+
 - `fix/user-login-error`
 - `fix/payment-calculation`
 
 ### Other Branch Types
+
 ```
 chore/<task>     - Maintenance, refactoring
 docs/<task>      - Documentation updates
@@ -70,22 +77,24 @@ git push origin feat/location-hierarchy
 1. Go to GitHub repository
 2. Click "Compare & pull request"
 3. Fill in PR description:
+
    ```
    ## Feature: Location Hierarchy
-   
+
    ### Changes
    - ✅ Created Division, District, Area models
    - ✅ Updated User model with default location
    - ✅ Updated ParkingLot model with area_id
    - ✅ Added location seed data
-   
+
    ### Testing
    - Database sync successful
    - All associations working
-   
+
    ### Next Steps
    - Create location APIs
    ```
+
 4. Request review (if working with team)
 5. Merge to main
 
@@ -110,6 +119,7 @@ git push origin --delete feat/location-hierarchy
 ## Commit Message Format
 
 ### Structure
+
 ```
 <type>: <short description>
 
@@ -119,6 +129,7 @@ git push origin --delete feat/location-hierarchy
 ```
 
 ### Types
+
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation only
@@ -130,6 +141,7 @@ git push origin --delete feat/location-hierarchy
 ### Examples
 
 **Good commits:**
+
 ```bash
 git commit -m "feat: create Division model with country field"
 git commit -m "feat: add location hierarchy associations"
@@ -138,6 +150,7 @@ git commit -m "docs: update PRD with location discovery feature"
 ```
 
 **Bad commits:**
+
 ```bash
 git commit -m "update"
 git commit -m "changes"
@@ -149,6 +162,7 @@ git commit -m "fix bug"
 ## Current Project: Location Hierarchy Feature
 
 ### Branch Name
+
 ```
 feat/location-hierarchy
 ```
@@ -156,31 +170,37 @@ feat/location-hierarchy
 ### Task Breakdown (Sequential Commits)
 
 1. **Task 1:** Create Division model
+
    ```bash
    git commit -m "feat: create Division model with name, code, country fields"
    ```
 
 2. **Task 2:** Create District model
+
    ```bash
    git commit -m "feat: create District model with division relationship"
    ```
 
 3. **Task 3:** Create Area model
+
    ```bash
    git commit -m "feat: create Area model with district relationship and geolocation"
    ```
 
 4. **Task 4:** Update User model
+
    ```bash
    git commit -m "feat: add default location fields to User model"
    ```
 
 5. **Task 5:** Update ParkingLot model
+
    ```bash
    git commit -m "feat: update ParkingLot model with area_id and coordinates"
    ```
 
 6. **Task 6:** Update model associations
+
    ```bash
    git commit -m "feat: configure location hierarchy associations in models/index.js"
    ```
@@ -191,6 +211,7 @@ feat/location-hierarchy
    ```
 
 ### Final Push
+
 ```bash
 # After all tasks complete
 git push origin feat/location-hierarchy
@@ -201,6 +222,7 @@ git push origin feat/location-hierarchy
 ## Tips
 
 ### Check Current Branch
+
 ```bash
 git branch
 # * feat/location-hierarchy  ← You're here
@@ -208,22 +230,26 @@ git branch
 ```
 
 ### View Commit History
+
 ```bash
 git log --oneline
 ```
 
 ### Undo Last Commit (if not pushed)
+
 ```bash
 git reset --soft HEAD~1
 ```
 
 ### View Changes Before Committing
+
 ```bash
 git diff
 git status
 ```
 
 ### Stage Specific Files
+
 ```bash
 git add models/Division.js
 git add models/District.js
@@ -235,17 +261,20 @@ git commit -m "feat: create Division and District models"
 ## Emergency: If Something Goes Wrong
 
 ### Discard All Changes
+
 ```bash
 git checkout -- .
 ```
 
 ### Switch Back to Main (Abandon Feature)
+
 ```bash
 git checkout main
 git branch -D feat/location-hierarchy  # Force delete
 ```
 
 ### Recover Deleted Branch (if not pushed)
+
 ```bash
 git reflog  # Find the commit hash
 git checkout -b feat/location-hierarchy <commit-hash>
