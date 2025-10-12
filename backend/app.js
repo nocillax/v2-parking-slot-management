@@ -2,7 +2,12 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { initializeDatabase } from "./config/database.js";
-import "./models/index.js";
+import cookieParser from "cookie-parser";
+import "#models/index.js";
+
+// Import routes
+import apiRoutes from "./src/api/index.js";
+import { errorHandler } from "./src/middleware/error.middleware.js";
 
 const { PORT, NODE_ENV } = process.env;
 
@@ -13,6 +18,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Basic health check route
 app.get("/health", (req, res) => {
@@ -22,6 +28,12 @@ app.get("/health", (req, res) => {
     environment: NODE_ENV,
   });
 });
+
+// API Routes
+app.use("/api/v1", apiRoutes);
+
+// Global Error Handler Middleware
+app.use(errorHandler);
 
 // Start server
 const startServer = async () => {

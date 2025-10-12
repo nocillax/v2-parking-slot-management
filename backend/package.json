@@ -1,16 +1,39 @@
 {
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "app.js",
   "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "imports": {
+    "#models/*": "./models/*",
+    "#config/*": "./config/*",
+    "#src/*": "./src/*",
+    "#api/*": "./src/api/*",
+    "#utils/*": "./src/utils/*",
+    "#services/*": "./src/services/*"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "http-status-codes": "^2.3.0",
+    "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.9",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
     "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

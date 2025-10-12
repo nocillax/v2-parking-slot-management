@@ -30,12 +30,11 @@ export const initializeDatabase = async () => {
     await sequelize.authenticate();
     console.log("✅ Database connected successfully");
 
-    // await sequelize.sync({
-    //   force: false, // Don't drop existing tables
-    //   alter: true, // Update tables to match models
-    // });
+    // Temporarily sync only the User model to add the refresh_token column
+    await sequelize.models.User.sync({ alter: true });
 
-    // console.log("✅ Database synchronized");
+    console.log("✅ User model synchronized successfully");
+    // The full sync is commented out to avoid the 'divisions' table error for now.
   } catch (error) {
     console.error("❌ Database connection failed:", error);
     process.exit(1); // Exit if database connection fails
