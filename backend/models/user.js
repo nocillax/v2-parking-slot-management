@@ -1,10 +1,17 @@
 import "dotenv/config";
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
+const {
+  JWT_SECRET,
+  JWT_ACCESS_TOKEN_EXPIRES_IN,
+  JWT_REFRESH_TOKEN_SECRET,
+  JWT_REFRESH_TOKEN_EXPIRES_IN,
+} = process.env;
+
 const SALT_ROUNDS = 10;
 
 // User model for authentication and profile management
@@ -35,6 +42,23 @@ const User = sequelize.define(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+
+    // Store the current refresh token to allow for revocation
+    refresh_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    // Fields for password reset functionality
+    password_reset_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    password_reset_expires: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
 
     // Optional default vehicle for quick reservations
@@ -137,8 +161,8 @@ User.prototype.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Generate JWT token for authenticated sessions
-User.prototype.generateJWT = function () {
+// Generate Access Token
+User.prototype.generateAccessToken = function () {
   return jwt.sign(
     {
       id: this.id,
@@ -146,14 +170,36 @@ User.prototype.generateJWT = function () {
       role: this.role,
     },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN }
   );
+};
+
+// Generate Refresh Token
+User.prototype.generateRefreshToken = function () {
+  return jwt.sign({ id: this.id }, JWT_REFRESH_TOKEN_SECRET, {
+    expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
+  });
+};
+
+// Generate a password reset token
+User.prototype.generatePasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.password_reset_token = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.password_reset_expires = Date.now() + 10 * 60 * 1000; // Token expires in 10 minutes
+
+  return resetToken; // Return the unhashed token to be sent via email
 };
 
 // Hide password from JSON responses
 User.prototype.toJSON = function () {
   const values = { ...this.get() };
   delete values.password;
+  delete values.refresh_token;
   return values;
 };
 
