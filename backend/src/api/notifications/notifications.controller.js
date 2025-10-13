@@ -1,16 +1,14 @@
 import asyncHandler from "express-async-handler";
 import httpStatus from "http-status-codes";
-import NotificationService from "#services/NotificationService.js";
+import { notificationService } from "#services/notification.service.js";
 import { ApiResponse } from "#utils/ApiResponse.js";
 import { ApiError } from "#utils/ApiError.js";
 
 const getNotifications = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const options = req.query;
-
-  const notifications = await NotificationService.getUserNotifications(
+  const notifications = await notificationService.getUserNotifications(
     userId,
-    options
+    req.query
   );
 
   res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, notifications));
@@ -20,7 +18,7 @@ const markAsRead = asyncHandler(async (req, res) => {
   const { notificationId } = req.params;
   const userId = req.user.id;
 
-  await NotificationService.markAsRead([notificationId], userId);
+  await notificationService.markAsRead([notificationId], userId);
 
   res
     .status(httpStatus.OK)
@@ -31,7 +29,7 @@ const generateTestNotifications = asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
   // Generate a few different types of notifications for the current user
-  await NotificationService.reservationConfirmed(
+  await notificationService.reservationConfirmed(
     userId,
     {
       slot_number: "A-05",
@@ -44,13 +42,13 @@ const generateTestNotifications = asyncHandler(async (req, res) => {
     true
   ); // <-- Add 'true' here to send the email
 
-  await NotificationService.overstayWarning(userId, {
+  await notificationService.overstayWarning(userId, {
     slot_number: "B-12",
     overstay_amount: "5.00",
     reservation_id: "dummy-res-2",
   });
 
-  await NotificationService.paymentReceipt(userId, {
+  await notificationService.paymentReceipt(userId, {
     amount: "20.50",
     lot_name: "Downtown Garage",
     transaction_id: "sim_dummy_txn_123",
@@ -67,7 +65,7 @@ const generateTestNotifications = asyncHandler(async (req, res) => {
 
 const markAllAsRead = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  await NotificationService.markAllAsRead(userId);
+  await notificationService.markAllAsRead(userId);
 
   res
     .status(httpStatus.OK)
@@ -80,7 +78,7 @@ const deleteNotification = asyncHandler(async (req, res) => {
   const { notificationId } = req.params;
   const userId = req.user.id;
 
-  const deletedCount = await NotificationService.deleteNotification(
+  const deletedCount = await notificationService.deleteNotification(
     notificationId,
     userId
   );

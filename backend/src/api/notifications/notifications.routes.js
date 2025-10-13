@@ -4,6 +4,8 @@ import { notificationValidator } from "./notifications.validator.js";
 import { protect } from "#src/middleware/auth.middleware.js";
 import { validate } from "#src/middleware/validate.middleware.js";
 
+const { NODE_ENV } = process.env;
+
 const router = Router();
 
 router.get(
@@ -26,11 +28,13 @@ router.delete(
   notificationController.deleteNotification
 );
 
-/* A temporary route for developers to generate test data */
-router.post(
-  "/generate-test",
-  protect,
-  notificationController.generateTestNotifications
-);
+// This temporary route for generating test data will only be available in development mode
+if (NODE_ENV === "development") {
+  router.post(
+    "/generate-test",
+    protect,
+    notificationController.generateTestNotifications
+  );
+}
 
 export default router;
