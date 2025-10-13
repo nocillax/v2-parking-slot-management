@@ -20,6 +20,12 @@ router.patch(
 
 router.patch("/read-all", protect, notificationController.markAllAsRead);
 
+router.delete(
+  "/:notificationId",
+  [protect, validate(notificationValidator.deleteNotification)],
+  notificationController.deleteNotification
+);
+
 /* A temporary route for developers to generate test data */
 router.post(
   "/generate-test",

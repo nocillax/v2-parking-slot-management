@@ -188,6 +188,16 @@ class NotificationService {
     return await Notification.markAllAsRead(userId);
   }
 
+  // Delete a single notification for a user
+  static async deleteNotification(notificationId, userId) {
+    return await Notification.destroy({
+      where: {
+        id: notificationId,
+        user_id: userId,
+      },
+    });
+  }
+
   // Get unread count for user
   static async getUnreadCount(userId) {
     return await Notification.count({

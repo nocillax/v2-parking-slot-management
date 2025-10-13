@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import httpStatus from "http-status-codes";
 import NotificationService from "#services/NotificationService.js";
 import { ApiResponse } from "#utils/ApiResponse.js";
+import { ApiError } from "#utils/ApiError.js";
 
 const getNotifications = asyncHandler(async (req, res) => {
   const userId = req.user.id;
@@ -71,9 +72,28 @@ const markAllAsRead = asyncHandler(async (req, res) => {
     );
 });
 
+const deleteNotification = asyncHandler(async (req, res) => {
+  const { notificationId } = req.params;
+  const userId = req.user.id;
+
+  const deletedCount = await NotificationService.deleteNotification(
+    notificationId,
+    userId
+  );
+
+  if (deletedCount === 0) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Notification not found.");
+  }
+
+  res
+    .status(httpStatus.OK)
+    .json(new ApiResponse(httpStatus.OK, null, "Notification deleted."));
+});
+
 export const notificationController = {
   getNotifications,
   markAsRead,
   generateTestNotifications,
   markAllAsRead,
+  deleteNotification,
 };

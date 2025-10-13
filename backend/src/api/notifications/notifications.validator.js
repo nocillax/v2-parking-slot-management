@@ -15,7 +15,14 @@ const markAsRead = {
   }),
 };
 
+const deleteNotification = {
+  params: Joi.object().keys({
+    notificationId: Joi.string().uuid().required(),
+  }),
+};
+
 export const notificationValidator = {
   getNotifications,
   markAsRead,
+  deleteNotification,
 };
