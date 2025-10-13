@@ -1,7 +1,7 @@
 import asyncHandler from "express-async-handler";
 import httpStatus from "http-status-codes";
 import { authService } from "./auth.service.js";
-import { ApiResponse } from "../../utils/ApiResponse.js";
+import { ApiResponse } from "#utils/ApiResponse.js";
 
 const { NODE_ENV } = process.env;
 

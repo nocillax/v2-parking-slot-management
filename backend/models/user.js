@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import sequelize from "#config/database.js";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";

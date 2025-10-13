@@ -6,6 +6,8 @@ import { ApiError } from "#utils/ApiError.js";
 import { emailService } from "#services/email.service.js";
 import crypto from "crypto";
 
+const { JWT_REFRESH_TOKEN_SECRET } = process.env;
+
 const checkEmailExists = async (email) => {
   if (await models.User.findOne({ where: { email } })) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
@@ -40,7 +42,7 @@ const refreshAuthToken = async (token) => {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Refresh token is required");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET);
+  const decoded = jwt.verify(token, JWT_REFRESH_TOKEN_SECRET);
 
   const user = await models.User.findByPk(decoded.id);
 
