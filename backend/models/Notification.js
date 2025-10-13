@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
+import { emailService } from "#services/email.service.js";
 
 // Notification model for system messages to users
 const Notification = sequelize.define(
@@ -114,27 +115,28 @@ Notification.prototype.isExpired = function () {
   return this.expires_at && new Date() > this.expires_at;
 };
 
-// Send email notification (simulation for MVP)
+// Send email notification
 Notification.prototype.sendEmail = async function () {
   if (this.email_sent) {
     throw new Error("Email already sent for this notification");
   }
 
-  // Simulate email sending (in real app, use nodemailer)
-  const emailSuccess = Math.random() > 0.02; // 98% success rate
+  try {
+    const user = await this.getUser();
+    if (!user || !user.email) {
+      throw new Error(
+        `User or user email not found for notification ${this.id}`
+      );
+    }
 
-  if (emailSuccess) {
+    await emailService.sendEmail(user.email, this.title, this.message);
+
     this.email_sent = true;
     this.email_sent_at = new Date();
     await this.save();
-
-    console.log(`Email sent to user ${this.user_id}: ${this.title}`);
-    return { success: true, message: "Email sent successfully" };
-  } else {
-    console.error(
-      `Failed to send email to user ${this.user_id}: ${this.title}`
-    );
-    return { success: false, message: "Email delivery failed" };
+  } catch (error) {
+    console.error(`Failed to send email for notification ${this.id}:`, error);
+    // We don't re-throw the error to prevent a failed email from crashing a larger process.
   }
 };
 

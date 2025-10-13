@@ -31,14 +31,18 @@ const generateTestNotifications = asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
   // Generate a few different types of notifications for the current user
-  await NotificationService.reservationConfirmed(userId, {
-    slot_number: "A-05",
-    lot_name: "City Center Parking",
-    start_time: "10:00 AM",
-    end_time: "12:00 PM",
-    amount: "15.50",
-    reservation_id: "dummy-res-1",
-  });
+  await NotificationService.reservationConfirmed(
+    userId,
+    {
+      slot_number: "A-05",
+      lot_name: "City Center Parking",
+      start_time: "10:00 AM",
+      end_time: "12:00 PM",
+      amount: "15.50",
+      reservation_id: "dummy-res-1",
+    },
+    true
+  ); // <-- Add 'true' here to send the email
 
   await NotificationService.overstayWarning(userId, {
     slot_number: "B-12",
