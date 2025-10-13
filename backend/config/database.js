@@ -31,7 +31,7 @@ export const initializeDatabase = async () => {
     console.log("✅ Database connected successfully");
 
     // Temporarily sync only the User model to add the refresh_token column
-    await sequelize.models.User.sync({ alter: true });
+    // await sequelize.models.User.sync({ alter: true });
 
     console.log("✅ User model synchronized successfully");
     // The full sync is commented out to avoid the 'divisions' table error for now.
