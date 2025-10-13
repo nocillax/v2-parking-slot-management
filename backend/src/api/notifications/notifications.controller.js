@@ -60,8 +60,20 @@ const generateTestNotifications = asyncHandler(async (req, res) => {
     );
 });
 
+const markAllAsRead = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  await NotificationService.markAllAsRead(userId);
+
+  res
+    .status(httpStatus.OK)
+    .json(
+      new ApiResponse(httpStatus.OK, null, "All notifications marked as read.")
+    );
+});
+
 export const notificationController = {
   getNotifications,
   markAsRead,
   generateTestNotifications,
+  markAllAsRead,
 };

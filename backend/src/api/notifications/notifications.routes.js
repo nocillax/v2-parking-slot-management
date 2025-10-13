@@ -18,6 +18,8 @@ router.patch(
   notificationController.markAsRead
 );
 
+router.patch("/read-all", protect, notificationController.markAllAsRead);
+
 /* A temporary route for developers to generate test data */
 router.post(
   "/generate-test",

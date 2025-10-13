@@ -183,6 +183,11 @@ class NotificationService {
     );
   }
 
+  // Mark all notifications as read for a user
+  static async markAllAsRead(userId) {
+    return await Notification.markAllAsRead(userId);
+  }
+
   // Get unread count for user
   static async getUnreadCount(userId) {
     return await Notification.count({
