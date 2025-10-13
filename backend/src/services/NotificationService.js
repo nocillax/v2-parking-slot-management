@@ -1,8 +1,11 @@
 import {
   notificationTemplates,
   processTemplate,
-} from "../config/notificationTemplates.js";
-import Notification from "../models/Notification.js";
+} from "#config/notificationTemplates.js";
+import models from "#models/index.js";
+import { Op } from "sequelize";
+
+const { Notification } = models;
 
 // Notification service for creating and sending notifications
 class NotificationService {
@@ -192,7 +195,7 @@ class NotificationService {
     const expiredCount = await Notification.destroy({
       where: {
         expires_at: {
-          [sequelize.Sequelize.Op.lt]: new Date(),
+          [Op.lt]: new Date(),
         },
       },
     });

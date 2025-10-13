@@ -1,13 +1,13 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { initializeDatabase } from "./config/database.js";
+import { initializeDatabase } from "#config/database.js";
 import cookieParser from "cookie-parser";
 import "#models/index.js";
 
 // Import routes
-import apiRoutes from "./src/api/index.js";
-import { errorHandler } from "./src/middleware/error.middleware.js";
+import apiRoutes from "#api/index.js";
+import { errorHandler } from "#src/middleware/error.middleware.js";
 
 const { PORT, NODE_ENV } = process.env;
 

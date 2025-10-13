@@ -4,6 +4,8 @@ import asyncHandler from "express-async-handler";
 import { ApiError } from "#utils/ApiError.js";
 import models from "#models/index.js";
 
+const { JWT_SECRET } = process.env;
+
 const extractToken = (req) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -13,7 +15,7 @@ const extractToken = (req) => {
 };
 
 const verifyAndAttachUser = async (req, token) => {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.verify(token, JWT_SECRET);
   const user = await models.User.findByPk(decoded.id);
   if (!user) {
     throw new ApiError(httpStatus.UNAUTHORIZED, "User not found");
