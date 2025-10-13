@@ -1,9 +1,9 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
 
-// ParkingLot model for managing parking facilities
-const ParkingLot = sequelize.define(
-  "ParkingLot",
+// Facility model for managing parking facilities
+const Facility = sequelize.define(
+  "Facility",
   {
     id: {
       type: DataTypes.UUID,
@@ -40,7 +40,7 @@ const ParkingLot = sequelize.define(
     latitude: {
       type: DataTypes.DECIMAL(10, 8),
       allowNull: true,
-      comment: "Parking lot GPS latitude",
+      comment: "Facility GPS latitude",
       validate: {
         min: -90,
         max: 90,
@@ -50,7 +50,7 @@ const ParkingLot = sequelize.define(
     longitude: {
       type: DataTypes.DECIMAL(11, 8),
       allowNull: true,
-      comment: "Parking lot GPS longitude",
+      comment: "Facility GPS longitude",
       validate: {
         min: -180,
         max: 180,
@@ -68,34 +68,34 @@ const ParkingLot = sequelize.define(
     },
   },
   {
-    tableName: "parking_lots",
+    tableName: "facilities",
     timestamps: true,
     indexes: [
       {
         fields: ["area_id"],
-        name: "parking_lot_area_index",
+        name: "facility_area_index",
       },
       {
         fields: ["latitude", "longitude"],
-        name: "parking_lot_geolocation_index",
+        name: "facility_geolocation_index",
       },
     ],
   }
 );
 
 // Get available slots count for this lot
-ParkingLot.prototype.getAvailableSlots = async function () {
+Facility.prototype.getAvailableSlots = async function () {
   const { Slot } = sequelize.models;
   return await Slot.count({
     where: {
-      lot_id: this.id,
+      facility_id: this.id,
       status: "Free",
     },
   });
 };
 
-// Get full location hierarchy for this parking lot
-ParkingLot.prototype.getFullLocation = async function () {
+// Get full location hierarchy for this Facility
+Facility.prototype.getFullLocation = async function () {
   const { Area, District, Division } = sequelize.models;
   const area = await Area.findByPk(this.area_id, {
     include: [
@@ -117,7 +117,7 @@ ParkingLot.prototype.getFullLocation = async function () {
 };
 
 // Calculate distance from a given point (in kilometers)
-ParkingLot.prototype.getDistanceFrom = function (latitude, longitude) {
+Facility.prototype.getDistanceFrom = function (latitude, longitude) {
   if (!this.latitude || !this.longitude) return null;
 
   const R = 6371; // Earth's radius in km
@@ -135,21 +135,22 @@ ParkingLot.prototype.getDistanceFrom = function (latitude, longitude) {
 };
 
 // Define model relationships
-ParkingLot.associate = (models) => {
-  ParkingLot.belongsTo(models.User, {
+
+Facility.associate = (models) => {
+  Facility.belongsTo(models.User, {
     foreignKey: "admin_id",
     as: "admin",
   });
 
-  ParkingLot.hasMany(models.Slot, {
-    foreignKey: "lot_id",
+  Facility.hasMany(models.Slot, {
+    foreignKey: "facility_id",
     as: "slots",
   });
 
-  ParkingLot.belongsTo(models.Area, {
+  Facility.belongsTo(models.Area, {
     foreignKey: "area_id",
     as: "area",
   });
 };
 
-export default ParkingLot;
+export default Facility;
