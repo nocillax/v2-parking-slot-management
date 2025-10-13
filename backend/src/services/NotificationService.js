@@ -176,10 +176,10 @@ class NotificationService {
   }
 
   // Mark notifications as read
-  static async markAsRead(notificationIds) {
+  static async markAsRead(notificationIds, userId) {
     return await Notification.update(
       { read: true },
-      { where: { id: notificationIds } }
+      { where: { id: notificationIds, user_id: userId } }
     );
   }
 

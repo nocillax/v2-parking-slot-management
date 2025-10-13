@@ -12,4 +12,17 @@ router.get(
   notificationController.getNotifications
 );
 
+router.patch(
+  "/:notificationId/read",
+  [protect, validate(notificationValidator.markAsRead)],
+  notificationController.markAsRead
+);
+
+/* A temporary route for developers to generate test data */
+router.post(
+  "/generate-test",
+  protect,
+  notificationController.generateTestNotifications
+);
+
 export default router;
