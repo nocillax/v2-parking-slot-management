@@ -109,6 +109,38 @@ const createReservation = async (userId, reservationData) => {
   });
 };
 
+const getReservationsByUserId = async (userId, options) => {
+  const { page = 1, limit = 10, status, sortBy = "start_time:desc" } = options;
+
+  const where = { user_id: userId };
+  if (status) {
+    where.status = status;
+  }
+
+  const [sortField, sortOrder] = sortBy.split(":");
+
+  return await models.Reservation.findAndCountAll({
+    where,
+    include: [
+      {
+        model: models.Slot,
+        as: "slot",
+        include: [
+          {
+            model: models.Facility,
+            as: "facility",
+            attributes: ["id", "name", "address"],
+          },
+        ],
+      },
+    ],
+    order: [[sortField, sortOrder.toUpperCase()]],
+    limit,
+    offset: (page - 1) * limit,
+  });
+};
+
 export const reservationService = {
   createReservation,
+  getReservationsByUserId,
 };

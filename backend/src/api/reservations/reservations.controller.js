@@ -33,6 +33,17 @@ const createReservation = asyncHandler(async (req, res) => {
   );
 });
 
+const getUserReservations = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const reservations = await reservationService.getReservationsByUserId(
+    userId,
+    req.query
+  );
+
+  res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, reservations));
+});
+
 export const reservationController = {
   createReservation,
+  getUserReservations,
 };

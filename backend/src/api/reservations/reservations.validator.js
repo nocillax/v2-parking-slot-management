@@ -2,7 +2,7 @@ import Joi from "joi";
 
 const reservationRequestSchema = Joi.object({
   slot_type: Joi.string()
-    .valid("Normal", "VIP", "Handicapped", "Motorbike")
+    .valid("Normal", "VIP", "Handicapped", "Bike")
     .required(),
   count: Joi.number().integer().min(1).required(),
 });
@@ -16,6 +16,23 @@ const createReservation = {
   }),
 };
 
+const getUserReservations = {
+  query: Joi.object({
+    page: Joi.number().integer().min(1),
+    limit: Joi.number().integer().min(1),
+    status: Joi.string().valid(
+      "Active",
+      "Checked-in",
+      "Completed",
+      "Expired",
+      "Overstayed",
+      "Cancelled"
+    ),
+    sortBy: Joi.string().valid("start_time:asc", "start_time:desc"),
+  }),
+};
+
 export const reservationValidator = {
   createReservation,
+  getUserReservations,
 };

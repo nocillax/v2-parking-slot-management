@@ -12,4 +12,10 @@ router.post(
   reservationController.createReservation
 );
 
+router.get(
+  "/me",
+  [protect, validate(reservationValidator.getUserReservations)],
+  reservationController.getUserReservations
+);
+
 export default router;
