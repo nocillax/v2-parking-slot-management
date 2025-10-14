@@ -59,8 +59,45 @@ const getSlotById = async (facilityId, slotId) => {
   return slot;
 };
 
+const updateSlotById = async (facilityId, slotId, updateData, adminId) => {
+  const slot = await getSlotById(facilityId, slotId);
+  if (!slot) {
+    throw new ApiError(404, "Slot not found in this facility.");
+  }
+
+  const facility = await slot.getFacility();
+  if (facility.admin_id !== adminId) {
+    throw new ApiError(403, "You are not authorized to update this slot.");
+  }
+
+  Object.assign(slot, updateData);
+  await slot.save();
+  return slot;
+};
+
+const updateSlotStatus = async (facilityId, slotId, status, adminId) => {
+  const slot = await getSlotById(facilityId, slotId);
+  if (!slot) {
+    throw new ApiError(404, "Slot not found in this facility.");
+  }
+
+  const facility = await slot.getFacility();
+  if (facility.admin_id !== adminId) {
+    throw new ApiError(
+      403,
+      "You are not authorized to update this slot's status."
+    );
+  }
+
+  slot.status = status;
+  await slot.save();
+  return slot;
+};
+
 export const slotService = {
   createSlots,
   getSlotsByFacility,
   getSlotById,
+  updateSlotById,
+  updateSlotStatus,
 };

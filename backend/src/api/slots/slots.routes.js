@@ -13,7 +13,18 @@ router.post(
 );
 
 router.get("/", validate(slotValidator.getSlots), slotController.getSlots);
-
 router.get("/:slotId", validate(slotValidator.getSlot), slotController.getSlot);
+
+router.patch(
+  "/:slotId",
+  [protect, authorize("admin"), validate(slotValidator.updateSlot)],
+  slotController.updateSlot
+);
+
+router.patch(
+  "/:slotId/status",
+  [protect, authorize("admin"), validate(slotValidator.updateSlotStatus)],
+  slotController.updateSlotStatus
+);
 
 export default router;

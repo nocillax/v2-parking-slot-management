@@ -35,8 +35,33 @@ const getSlot = {
   }),
 };
 
+const updateSlot = {
+  params: Joi.object().keys({
+    facilityId: Joi.string().uuid().required(),
+    slotId: Joi.string().uuid().required(),
+  }),
+  body: Joi.object()
+    .keys({
+      hourly_rate: Joi.number().min(0),
+      location_tag: Joi.string().allow(null, ""),
+    })
+    .min(1), // Require at least one field to be updated
+};
+
+const updateSlotStatus = {
+  params: Joi.object().keys({
+    facilityId: Joi.string().uuid().required(),
+    slotId: Joi.string().uuid().required(),
+  }),
+  body: Joi.object().keys({
+    status: Joi.string().valid("Free", "Reserved", "Occupied").required(),
+  }),
+};
+
 export const slotValidator = {
   createSlots,
   getSlots,
   getSlot,
+  updateSlot,
+  updateSlotStatus,
 };

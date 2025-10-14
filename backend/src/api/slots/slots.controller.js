@@ -41,8 +41,49 @@ const getSlot = asyncHandler(async (req, res) => {
   res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, slot));
 });
 
+const updateSlot = asyncHandler(async (req, res) => {
+  const { facilityId, slotId } = req.params;
+  const adminId = req.user.id;
+  const updatedSlot = await slotService.updateSlotById(
+    facilityId,
+    slotId,
+    req.body,
+    adminId
+  );
+
+  res
+    .status(httpStatus.OK)
+    .json(
+      new ApiResponse(httpStatus.OK, updatedSlot, "Slot updated successfully.")
+    );
+});
+
+const updateSlotStatus = asyncHandler(async (req, res) => {
+  const { facilityId, slotId } = req.params;
+  const { status } = req.body;
+  const adminId = req.user.id;
+  const updatedSlot = await slotService.updateSlotStatus(
+    facilityId,
+    slotId,
+    status,
+    adminId
+  );
+
+  res
+    .status(httpStatus.OK)
+    .json(
+      new ApiResponse(
+        httpStatus.OK,
+        updatedSlot,
+        "Slot status updated successfully."
+      )
+    );
+});
+
 export const slotController = {
   createSlots,
   getSlots,
   getSlot,
+  updateSlot,
+  updateSlotStatus,
 };
