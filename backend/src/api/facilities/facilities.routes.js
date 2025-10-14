@@ -3,37 +3,35 @@ import { facilityController } from "./facilities.controller.js";
 import { facilityValidator } from "./facilities.validator.js";
 import { protect, authorize } from "#src/middleware/auth.middleware.js";
 import { validate } from "#src/middleware/validate.middleware.js";
+import slotRoutes from "../slots/slots.routes.js";
 
 const router = Router();
 
-router.post(
-  "/",
-  [protect, authorize("admin"), validate(facilityValidator.createFacility)],
-  facilityController.createFacility
-);
+// Nest the slot routes
+// Any request to /api/v1/facilities/:facilityId/slots... will be handled by slotRoutes
+router.use("/:facilityId/slots", slotRoutes);
 
-router.get(
-  "/",
-  validate(facilityValidator.getFacilities),
-  facilityController.getFacilities
-);
+router
+  .route("/")
+  .post(
+    [protect, authorize("admin"), validate(facilityValidator.createFacility)],
+    facilityController.createFacility
+  )
+  .get(
+    validate(facilityValidator.getFacilities),
+    facilityController.getFacilities
+  );
 
-router.get(
-  "/:facilityId",
-  validate(facilityValidator.getFacility),
-  facilityController.getFacility
-);
-
-router.patch(
-  "/:facilityId",
-  [protect, authorize("admin"), validate(facilityValidator.updateFacility)],
-  facilityController.updateFacility
-);
-
-router.delete(
-  "/:facilityId",
-  [protect, authorize("admin"), validate(facilityValidator.getFacility)], // Re-use getFacility validator for params
-  facilityController.deleteFacility
-);
+router
+  .route("/:facilityId")
+  .get(validate(facilityValidator.getFacility), facilityController.getFacility)
+  .patch(
+    [protect, authorize("admin"), validate(facilityValidator.updateFacility)],
+    facilityController.updateFacility
+  )
+  .delete(
+    [protect, authorize("admin"), validate(facilityValidator.deleteFacility)],
+    facilityController.deleteFacility
+  );
 
 export default router;

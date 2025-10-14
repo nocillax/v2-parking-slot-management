@@ -23,7 +23,7 @@ const Slot = sequelize.define(
     },
 
     slot_type: {
-      type: DataTypes.ENUM("Normal", "VIP", "Handicapped"),
+      type: DataTypes.ENUM("Normal", "VIP", "Handicapped", "Bike"),
       allowNull: false,
       defaultValue: "Normal",
     },
