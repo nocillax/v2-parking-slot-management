@@ -18,4 +18,10 @@ router.get(
   reservationController.getUserReservations
 );
 
+router.get(
+  "/:id",
+  [protect, validate(reservationValidator.getReservation)],
+  reservationController.getReservation
+);
+
 export default router;

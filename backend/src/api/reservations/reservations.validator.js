@@ -32,7 +32,14 @@ const getUserReservations = {
   }),
 };
 
+const getReservation = {
+  params: Joi.object({
+    id: Joi.string().uuid().required(),
+  }),
+};
+
 export const reservationValidator = {
   createReservation,
   getUserReservations,
+  getReservation,
 };

@@ -140,7 +140,35 @@ const getReservationsByUserId = async (userId, options) => {
   });
 };
 
+const getReservationById = async (reservationId, userId) => {
+  const reservation = await models.Reservation.findOne({
+    where: {
+      id: reservationId,
+      user_id: userId, // Ownership check
+    },
+    include: [
+      {
+        model: models.Slot,
+        as: "slot",
+        include: [
+          {
+            model: models.Facility,
+            as: "facility",
+            attributes: ["id", "name", "address"],
+          },
+        ],
+      },
+      {
+        model: models.Payment,
+        as: "payments",
+      },
+    ],
+  });
+  return reservation;
+};
+
 export const reservationService = {
   createReservation,
   getReservationsByUserId,
+  getReservationById,
 };

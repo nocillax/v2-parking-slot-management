@@ -3,6 +3,7 @@ import httpStatus from "http-status-codes";
 import { reservationService } from "./reservations.service.js";
 import { notificationService } from "#services/notification.service.js";
 import { ApiResponse } from "#utils/ApiResponse.js";
+import { ApiError } from "#utils/ApiError.js";
 
 const createReservation = asyncHandler(async (req, res) => {
   const userId = req.user.id;
@@ -43,7 +44,24 @@ const getUserReservations = asyncHandler(async (req, res) => {
   res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, reservations));
 });
 
+const getReservation = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  const reservation = await reservationService.getReservationById(id, userId);
+
+  if (!reservation) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "Reservation not found or you do not have permission to view it."
+    );
+  }
+
+  res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, reservation));
+});
+
 export const reservationController = {
   createReservation,
   getUserReservations,
+  getReservation,
 };
