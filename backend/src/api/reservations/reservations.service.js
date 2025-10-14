@@ -167,8 +167,59 @@ const getReservationById = async (reservationId, userId) => {
   return reservation;
 };
 
+const getReservationsByFacilityId = async (facilityId, adminId, options) => {
+  // 1. Check if facility exists and if the admin owns it
+  const facility = await models.Facility.findByPk(facilityId);
+  if (!facility) {
+    throw new ApiError(404, "Facility not found.");
+  }
+  if (facility.admin_id !== adminId) {
+    throw new ApiError(
+      403,
+      "You are not authorized to view reservations for this facility."
+    );
+  }
+
+  // 2. Prepare query options
+  const {
+    page = 1,
+    limit = 10,
+    status,
+    user_id,
+    sortBy = "start_time:desc",
+  } = options;
+
+  const where = {};
+  if (status) where.status = status;
+  if (user_id) where.user_id = user_id;
+
+  const [sortField, sortOrder] = sortBy.split(":");
+
+  // 3. Find all slots belonging to the facility
+  const facilitySlots = await models.Slot.findAll({
+    where: { facility_id: facilityId },
+    attributes: ["id"],
+    raw: true,
+  });
+  const facilitySlotIds = facilitySlots.map((slot) => slot.id);
+  where.slot_id = { [Op.in]: facilitySlotIds };
+
+  // 4. Fetch reservations
+  return await models.Reservation.findAndCountAll({
+    where,
+    include: [
+      { model: models.Slot, as: "slot", attributes: ["id", "location_tag"] },
+      { model: models.User, as: "user", attributes: ["id", "name", "email"] },
+    ],
+    order: [[sortField, sortOrder.toUpperCase()]],
+    limit,
+    offset: (page - 1) * limit,
+  });
+};
+
 export const reservationService = {
   createReservation,
   getReservationsByUserId,
   getReservationById,
+  getReservationsByFacilityId,
 };

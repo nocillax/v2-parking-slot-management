@@ -38,8 +38,29 @@ const getReservation = {
   }),
 };
 
+const getFacilityReservations = {
+  params: Joi.object({
+    facilityId: Joi.string().uuid().required(),
+  }),
+  query: Joi.object({
+    page: Joi.number().integer().min(1),
+    limit: Joi.number().integer().min(1),
+    status: Joi.string().valid(
+      "Active",
+      "Checked-in",
+      "Completed",
+      "Expired",
+      "Overstayed",
+      "Cancelled"
+    ),
+    sortBy: Joi.string().valid("start_time:asc", "start_time:desc"),
+    user_id: Joi.string().uuid(), // Allow admin to filter by a specific user
+  }),
+};
+
 export const reservationValidator = {
   createReservation,
   getUserReservations,
   getReservation,
+  getFacilityReservations,
 };

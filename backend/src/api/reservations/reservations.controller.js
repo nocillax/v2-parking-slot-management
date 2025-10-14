@@ -60,8 +60,22 @@ const getReservation = asyncHandler(async (req, res) => {
   res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, reservation));
 });
 
+const getFacilityReservations = asyncHandler(async (req, res) => {
+  const { facilityId } = req.params;
+  const adminId = req.user.id;
+
+  const reservations = await reservationService.getReservationsByFacilityId(
+    facilityId,
+    adminId,
+    req.query
+  );
+
+  res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, reservations));
+});
+
 export const reservationController = {
   createReservation,
   getUserReservations,
   getReservation,
+  getFacilityReservations,
 };
