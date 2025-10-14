@@ -30,10 +30,14 @@ export const initializeDatabase = async () => {
     await sequelize.authenticate();
     console.log("✅ Database connected successfully");
 
-    // Temporarily sync only the User model to add the refresh_token column
-    // await sequelize.models.User.sync({ alter: true });
+    // WARNING: Using force: true will drop the table if it already exists.
+    // This is useful for development to ensure a clean schema after refactoring.
+    // It will delete all data in the 'facilities' table.
+    // await sequelize.models.Facility.sync({ force: true });
+    // await sequelize.models.Slot.sync({ force: true });
+    // await sequelize.models.Waitlist.sync({ force: true });
+    //console.log("✅ Facility, Slot, and Waitlist tables have been re-synced.");
 
-    console.log("✅ User model synchronized successfully");
     // The full sync is commented out to avoid the 'divisions' table error for now.
   } catch (error) {
     console.error("❌ Database connection failed:", error);

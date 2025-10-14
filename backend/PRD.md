@@ -12,8 +12,8 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 ## **2. Core Modules**
 
 1. **Authentication & Roles**
-2. **Location Hierarchy & Discovery** ⭐ NEW
-3. **Parking Lots & Slots**
+2. **Location Hierarchy & Discovery**
+3. **Facilities & Slots**
 4. **Reservation & Check-in System**
 5. **Payments & Overstay Handling**
 6. **Notifications & Waitlist**
@@ -38,7 +38,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 | Role                    | Capabilities                                                                      |
 | ----------------------- | --------------------------------------------------------------------------------- |
 | **User**                | Register, reserve slots, check in/out, cancel reservations, join waitlist         |
-| **Admin**               | Create/manage parking lots, slots, pricing, view analytics, manage users          |
+| **Admin**               | Create/manage Facilities, slots, pricing, view analytics, manage users            |
 | **System (Automation)** | Auto-expire reservations, flag overstays, trigger notifications, update analytics |
 
 ---
@@ -60,7 +60,7 @@ It also includes **automated system jobs** for reservation expiration, overstay 
 
 ### **5.2 Location Hierarchy & Discovery** ⭐ NEW
 
-Enable users to discover parking lots based on their location using a hierarchical dropdown system.
+Enable users to discover Facilities based on their location using a hierarchical dropdown system.
 
 #### **Location Hierarchy**
 
@@ -68,7 +68,7 @@ Enable users to discover parking lots based on their location using a hierarchic
 Division (Dhaka, Chittagong, etc.)
   └── District (Dhaka, Gazipur, etc.)
       └── Area (Uttara, Gulshan, Dhanmondi, etc.)
-          └── Parking Lots (specific facilities)
+          └── Facilities (specific facilities)
 ```
 
 #### **User Experience Flow**
@@ -77,13 +77,13 @@ Division (Dhaka, Chittagong, etc.)
 
    - User saves preferred location during registration/profile setup
    - App remembers: Division → District → Area
-   - Auto-loads parking lots from saved location on app open
+   - Auto-loads Facilities from saved location on app open
 
 2. **Location Search:**
    - User can change location using cascading dropdowns:
      - Select **Division** → Loads relevant **Districts**
      - Select **District** → Loads relevant **Areas**
-     - Select **Area** → Shows parking lots in that area
+     - Select **Area** → Shows Facilities in that area
 3. **Dropdown Features:**
 
    - Searchable (type to filter)
@@ -119,7 +119,7 @@ Division (Dhaka, Chittagong, etc.)
 - `default_division_id`, `default_district_id`, `default_area_id`
 - `latitude`, `longitude` (optional - from browser geolocation)
 
-**Parking Lot Update:**
+**Facility Update:**
 
 - `area_id` (FK) - replaces flat text `address`
 - `latitude`, `longitude` - exact GPS coordinates
@@ -135,17 +135,17 @@ Division (Dhaka, Chittagong, etc.)
 
 ---
 
-### **5.3 Parking Lots & Slots**
+### **5.3 Facilities & Slots**
 
-#### **Parking Lot**
+#### **Facility**
 
 - Managed by admin
 - Contains metadata: `name`, `address`, `total_slots`, `floors`, `created_by`
-- Each parking lot contains multiple `slots`.
+- Each Facility contains multiple `slots`.
 
 #### **Slot**
 
-- Belongs to a parking lot
+- Belongs to a Facility
 - Attributes:
 
   - `id`
@@ -169,7 +169,7 @@ Division (Dhaka, Chittagong, etc.)
 
 - User selects:
 
-  - Parking lot
+  - Facility
   - Slot type or specific slot
   - Start time, duration (hourly)
   - Optional vehicle number (required during check-in)

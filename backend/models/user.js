@@ -252,9 +252,9 @@ User.associate = (models) => {
     as: "notifications",
   });
 
-  User.hasMany(models.ParkingLot, {
+  User.hasMany(models.Facility, {
     foreignKey: "admin_id",
-    as: "managed_lots",
+    as: "managed_facilities",
   });
 
   // Location hierarchy relationships

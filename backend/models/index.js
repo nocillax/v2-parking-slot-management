@@ -3,7 +3,7 @@ import User from "./User.js";
 import Division from "./Division.js";
 import District from "./District.js";
 import Area from "./Area.js";
-import ParkingLot from "./ParkingLot.js";
+import Facility from "./Facility.js";
 import Slot from "./Slot.js";
 import Reservation from "./Reservation.js";
 import Payment from "./Payment.js";
@@ -15,7 +15,7 @@ const models = {
   Division,
   District,
   Area,
-  ParkingLot,
+  Facility,
   Slot,
   Reservation,
   Payment,
@@ -44,9 +44,9 @@ Area.belongsTo(District, {
   as: "district",
 });
 
-Area.hasMany(ParkingLot, {
+Area.hasMany(Facility, {
   foreignKey: "area_id",
-  as: "parking_lots",
+  as: "facilities",
 });
 
 // Set up all other model associations

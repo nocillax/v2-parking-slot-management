@@ -13,11 +13,11 @@ const Slot = sequelize.define(
     },
 
     // Foreign key to parking lot
-    lot_id: {
+    facility_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "parking_lots",
+        model: "facilities",
         key: "id",
       },
     },
@@ -54,7 +54,7 @@ const Slot = sequelize.define(
     indexes: [
       // Composite index for efficient queries
       {
-        fields: ["lot_id", "status"],
+        fields: ["facility_id", "status"],
       },
       {
         fields: ["slot_type", "status"],
@@ -109,9 +109,9 @@ Slot.prototype.getCurrentReservation = async function () {
 
 // Define model relationships
 Slot.associate = (models) => {
-  Slot.belongsTo(models.ParkingLot, {
-    foreignKey: "lot_id",
-    as: "parking_lot",
+  Slot.belongsTo(models.Facility, {
+    foreignKey: "facility_id",
+    as: "facility",
   });
 
   Slot.hasMany(models.Reservation, {

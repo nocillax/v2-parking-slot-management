@@ -23,11 +23,11 @@ const Waitlist = sequelize.define(
     },
 
     // Foreign key to parking lot
-    lot_id: {
+    facility_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: "parking_lots",
+        model: "facilities",
         key: "id",
       },
     },
@@ -85,7 +85,7 @@ const Waitlist = sequelize.define(
     timestamps: true,
     indexes: [
       {
-        fields: ["lot_id", "slot_type_pref", "status", "priority"],
+        fields: ["facility_id", "slot_type_pref", "status", "priority"],
       },
       {
         fields: ["user_id", "status"],
@@ -172,7 +172,7 @@ Waitlist.prototype.cancel = async function () {
 Waitlist.prototype.getQueuePosition = async function () {
   const count = await Waitlist.count({
     where: {
-      lot_id: this.lot_id,
+      facility_id: this.facility_id,
       slot_type_pref: this.slot_type_pref,
       status: "Active",
       priority: {
@@ -193,9 +193,9 @@ Waitlist.associate = (models) => {
     as: "user",
   });
 
-  Waitlist.belongsTo(models.ParkingLot, {
-    foreignKey: "lot_id",
-    as: "parking_lot",
+  Waitlist.belongsTo(models.Facility, {
+    foreignKey: "facility_id",
+    as: "facility",
   });
 };
 
