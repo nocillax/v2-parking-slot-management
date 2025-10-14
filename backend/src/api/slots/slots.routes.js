@@ -12,4 +12,8 @@ router.post(
   slotController.createSlots
 );
 
+router.get("/", validate(slotValidator.getSlots), slotController.getSlots);
+
+router.get("/:slotId", validate(slotValidator.getSlot), slotController.getSlot);
+
 export default router;

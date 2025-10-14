@@ -28,6 +28,39 @@ const createSlots = async (facilityId, slotData, adminId) => {
   return createdSlots;
 };
 
+const getSlotsByFacility = async (facilityId, options) => {
+  const { page = 1, limit = 20, status, slot_type } = options;
+
+  const where = { facility_id: facilityId };
+
+  if (status) {
+    where.status = status;
+  }
+
+  if (slot_type) {
+    where.slot_type = slot_type;
+  }
+
+  return await models.Slot.findAndCountAll({
+    where,
+    order: [["location_tag", "ASC"]],
+    limit,
+    offset: (page - 1) * limit,
+  });
+};
+
+const getSlotById = async (facilityId, slotId) => {
+  const slot = await models.Slot.findOne({
+    where: {
+      id: slotId,
+      facility_id: facilityId, // Ensure slot belongs to the facility
+    },
+  });
+  return slot;
+};
+
 export const slotService = {
   createSlots,
+  getSlotsByFacility,
+  getSlotById,
 };
