@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { reservationController } from "./reservations.controller.js";
 import { reservationValidator } from "./reservations.validator.js";
-import { protect } from "#src/middleware/auth.middleware.js";
+import { protect, authorize } from "#src/middleware/auth.middleware.js";
 import { validate } from "#src/middleware/validate.middleware.js";
 
 const router = Router();
@@ -28,6 +28,26 @@ router.patch(
   "/:id/cancel",
   [protect, validate(reservationValidator.cancelReservation)],
   reservationController.cancelReservation
+);
+
+router.patch(
+  "/:id/check-in",
+  [
+    protect,
+    authorize("admin"),
+    validate(reservationValidator.checkInReservation),
+  ],
+  reservationController.checkInReservation
+);
+
+router.patch(
+  "/:id/check-out",
+  [
+    protect,
+    authorize("admin"),
+    validate(reservationValidator.checkOutReservation),
+  ],
+  reservationController.checkOutReservation
 );
 
 export default router;

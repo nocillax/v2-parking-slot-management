@@ -93,10 +93,72 @@ const cancelReservation = asyncHandler(async (req, res) => {
     );
 });
 
+const checkInReservation = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { vehicle_number } = req.body;
+  const adminId = req.user.id;
+
+  const checkedInReservation = await reservationService.checkInReservationById(
+    id,
+    adminId,
+    vehicle_number
+  );
+
+  // Send notification after successful check-in
+  await notificationService.createAndSend(
+    checkedInReservation.user_id,
+    "check_in_success",
+    {
+      slot_number: checkedInReservation.slot.location_tag,
+      lot_name: checkedInReservation.slot.facility.name,
+      vehicle_number: checkedInReservation.vehicle_no,
+    }
+  );
+
+  res
+    .status(httpStatus.OK)
+    .json(
+      new ApiResponse(
+        httpStatus.OK,
+        checkedInReservation,
+        "Reservation checked-in successfully."
+      )
+    );
+});
+
+const checkOutReservation = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const adminId = req.user.id;
+
+  const checkedOutReservation =
+    await reservationService.checkOutReservationById(id, adminId);
+
+  // Send payment receipt notification
+  const payment = (await checkedOutReservation.getPayments())[0];
+  await notificationService.paymentReceipt(checkedOutReservation.user_id, {
+    reservation_id: checkedOutReservation.id,
+    payment_id: payment.id,
+    amount: checkedOutReservation.total_amount,
+    vehicle_number: checkedOutReservation.vehicle_no,
+  });
+
+  res
+    .status(httpStatus.OK)
+    .json(
+      new ApiResponse(
+        httpStatus.OK,
+        checkedOutReservation,
+        "Reservation checked-out successfully."
+      )
+    );
+});
+
 export const reservationController = {
   createReservation,
   getUserReservations,
   getReservation,
   getFacilityReservations,
   cancelReservation,
+  checkInReservation,
+  checkOutReservation,
 };

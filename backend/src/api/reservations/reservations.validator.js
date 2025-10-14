@@ -62,6 +62,23 @@ const cancelReservation = {
   params: Joi.object({
     id: Joi.string().uuid().required(),
   }),
+  body: Joi.object({}),
+};
+
+const checkInReservation = {
+  params: Joi.object({
+    id: Joi.string().uuid().required(),
+  }),
+  body: Joi.object({
+    vehicle_number: Joi.string().required(),
+  }),
+};
+
+const checkOutReservation = {
+  params: Joi.object({
+    id: Joi.string().uuid().required(),
+  }),
+  body: Joi.object({}), // Explicitly state that the body should be an empty object
 };
 
 export const reservationValidator = {
@@ -70,4 +87,6 @@ export const reservationValidator = {
   getReservation,
   getFacilityReservations,
   cancelReservation,
+  checkInReservation,
+  checkOutReservation,
 };

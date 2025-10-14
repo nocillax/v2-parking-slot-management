@@ -69,29 +69,29 @@ Slot.prototype.isAvailable = function () {
 };
 
 // Reserve this slot (change status to Reserved)
-Slot.prototype.reserve = async function () {
+Slot.prototype.reserve = async function (options = {}) {
   if (!this.isAvailable()) {
     throw new Error("Slot is not available for reservation");
   }
   this.status = "Reserved";
-  await this.save();
+  await this.save({ transaction: options.transaction });
   return this;
 };
 
 // Mark slot as occupied (on check-in)
-Slot.prototype.occupy = async function () {
+Slot.prototype.occupy = async function (options = {}) {
   if (this.status !== "Reserved") {
     throw new Error("Slot must be reserved before occupation");
   }
   this.status = "Occupied";
-  await this.save();
+  await this.save({ transaction: options.transaction });
   return this;
 };
 
 // Free the slot (on check-out or reservation expiry)
-Slot.prototype.free = async function () {
+Slot.prototype.free = async function (options = {}) {
   this.status = "Free";
-  await this.save();
+  await this.save({ transaction: options.transaction });
   return this;
 };
 
