@@ -70,6 +70,14 @@ const updateSlotById = async (facilityId, slotId, updateData, adminId) => {
     throw new ApiError(403, "You are not authorized to update this slot.");
   }
 
+  // Safety check: prevent changing type of a non-free slot
+  if (updateData.slot_type && slot.status !== "Free") {
+    throw new ApiError(
+      400,
+      `Cannot change slot type. Slot is currently in '${slot.status}' status.`
+    );
+  }
+
   Object.assign(slot, updateData);
   await slot.save();
   return slot;

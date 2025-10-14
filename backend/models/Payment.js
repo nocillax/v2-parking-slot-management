@@ -75,7 +75,7 @@ const Payment = sequelize.define(
 );
 
 // Process payment (simulation for MVP)
-Payment.prototype.processPayment = async function () {
+Payment.prototype.processPayment = async function (options = {}) {
   if (this.status !== "Pending") {
     throw new Error("Payment has already been processed");
   }
@@ -103,12 +103,12 @@ Payment.prototype.processPayment = async function () {
     };
   }
 
-  await this.save();
+  await this.save({ transaction: options.transaction });
   return this;
 };
 
 // Refund payment
-Payment.prototype.refund = async function (refundAmount = null) {
+Payment.prototype.refund = async function (refundAmount = null, options = {}) {
   if (this.status !== "Paid") {
     throw new Error("Only paid payments can be refunded");
   }
@@ -126,7 +126,7 @@ Payment.prototype.refund = async function (refundAmount = null) {
     refund_amount: amount,
   };
 
-  await this.save();
+  await this.save({ transaction: options.transaction });
   return this;
 };
 

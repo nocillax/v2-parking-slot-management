@@ -112,13 +112,13 @@ Reservation.prototype.isExpired = function () {
 Reservation.prototype.isOverstayed = function () {
   return (
     this.check_in_time &&
-    new Date() > this.end_time &&
-    this.status === "Checked-in"
+    new Date() > this.end_time && // Current time is past the scheduled end
+    ["Checked-in", "Overstayed"].includes(this.status) // User is still occupying the slot
   );
 };
 
 // Mark reservation as checked in
-Reservation.prototype.checkIn = async function (vehicleNumber) {
+Reservation.prototype.checkIn = async function (vehicleNumber, options = {}) {
   if (this.status !== "Active") {
     throw new Error("Only active reservations can be checked in");
   }
@@ -126,59 +126,73 @@ Reservation.prototype.checkIn = async function (vehicleNumber) {
   this.status = "Checked-in";
   this.vehicle_no = vehicleNumber;
   this.check_in_time = new Date();
-  await this.save();
+  await this.save({ transaction: options.transaction });
 
   // Update slot status to occupied
-  const slot = await this.getSlot();
-  await slot.occupy();
+  const slot = await this.getSlot({ transaction: options.transaction });
+  await slot.occupy({ transaction: options.transaction });
 
   return this;
 };
 
 // Mark reservation as completed (check out)
-Reservation.prototype.checkOut = async function () {
+Reservation.prototype.checkOut = async function (options = {}) {
   if (this.status !== "Checked-in") {
     throw new Error("Only checked-in reservations can be checked out");
   }
 
-  this.status = "Completed";
-  this.check_out_time = new Date();
+  const now = new Date();
+  this.check_out_time = now;
 
   // Check for overstay and update amount if needed
-  if (this.isOverstayed()) {
+  const slot = await this.getSlot({ transaction: options.transaction });
+  if (now > this.end_time) {
     this.status = "Overstayed";
     // Calculate overstay charges (1.5x rate)
-    const overstayHours = Math.ceil(
-      (new Date() - this.end_time) / (1000 * 60 * 60)
-    );
-    const slot = await this.getSlot();
+    const overstayHours = Math.ceil((now - this.end_time) / (1000 * 60 * 60));
     const overstayAmount = overstayHours * slot.hourly_rate * 1.5;
     this.total_amount = parseFloat(this.total_amount) + overstayAmount;
+  } else {
+    this.status = "Completed";
   }
 
-  await this.save();
+  // Find the pending payment record
+  const payments = await this.getPayments({
+    where: { status: "Pending" },
+    transaction: options.transaction,
+  });
+  const payment = payments[0];
+
+  if (payment) {
+    // Update payment amount and process it using its own method
+    payment.amount = this.total_amount;
+    await payment.processPayment({ transaction: options.transaction });
+    this.payment_status = payment.status; // Reflect the actual payment outcome
+  } else {
+    // Fallback or error if no pending payment is found
+    this.payment_status = "Failed";
+  }
+
+  await this.save({ transaction: options.transaction });
 
   // Free the slot
-  const slot = await this.getSlot();
-  await slot.free();
+  await slot.free({ transaction: options.transaction });
 
   return this;
 };
 
 // Cancel reservation
-Reservation.prototype.cancel = async function () {
-  if (!["Active", "Checked-in"].includes(this.status)) {
-    throw new Error("Cannot cancel completed or expired reservations");
+Reservation.prototype.cancel = async function (options = {}) {
+  if (this.status !== "Active") {
+    throw new Error("Only active reservations can be cancelled");
   }
 
   this.status = "Cancelled";
-  await this.save();
+  await this.save({ transaction: options.transaction });
 
   // Free the slot if it was reserved
-  const slot = await this.getSlot();
-  if (slot.status !== "Free") {
-    await slot.free();
-  }
+  const slot = await this.getSlot({ transaction: options.transaction });
+  await slot.free({ transaction: options.transaction });
 
   return this;
 };

@@ -2,7 +2,7 @@ import Joi from "joi";
 
 const slotSchema = Joi.object({
   slot_type: Joi.string()
-    .valid("Normal", "VIP", "Handicapped")
+    .valid("Normal", "VIP", "Handicapped", "Bike")
     .default("Normal"),
   hourly_rate: Joi.number().min(0).required(),
   location_tag: Joi.string().optional(),
@@ -24,7 +24,7 @@ const getSlots = {
     page: Joi.number().integer().min(1),
     limit: Joi.number().integer().min(1),
     status: Joi.string().valid("Free", "Reserved", "Occupied"),
-    slot_type: Joi.string().valid("Normal", "VIP", "Handicapped"),
+    slot_type: Joi.string().valid("Normal", "VIP", "Handicapped", "Bike"),
   }),
 };
 
@@ -44,6 +44,7 @@ const updateSlot = {
     .keys({
       hourly_rate: Joi.number().min(0),
       location_tag: Joi.string().allow(null, ""),
+      slot_type: Joi.string().valid("Normal", "VIP", "Handicapped", "Bike"),
     })
     .min(1), // Require at least one field to be updated
 };

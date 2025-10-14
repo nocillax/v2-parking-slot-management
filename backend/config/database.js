@@ -30,13 +30,12 @@ export const initializeDatabase = async () => {
     await sequelize.authenticate();
     console.log("✅ Database connected successfully");
 
-    // WARNING: Using force: true will drop the table if it already exists.
-    // This is useful for development to ensure a clean schema after refactoring.
-    // It will delete all data in the 'facilities' table.
-    // await sequelize.models.Facility.sync({ force: true });
-    // await sequelize.models.Slot.sync({ force: true });
-    // await sequelize.models.Waitlist.sync({ force: true });
-    //console.log("✅ Facility, Slot, and Waitlist tables have been re-synced.");
+    // Use { alter: true } during development to apply schema changes.
+    // This will add the 'Bike' ENUM value without dropping the tables.
+    // WARNING: This is not recommended for production. Use migrations instead.
+    // await sequelize.models.Slot.sync({ alter: true });
+    // await sequelize.models.Waitlist.sync({ alter: true });
+    // console.log("✅ Slot and Waitlist models were synchronized successfully.");
 
     // The full sync is commented out to avoid the 'divisions' table error for now.
   } catch (error) {
