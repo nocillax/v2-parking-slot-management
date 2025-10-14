@@ -24,4 +24,10 @@ router.get(
   reservationController.getReservation
 );
 
+router.patch(
+  "/:id/cancel",
+  [protect, validate(reservationValidator.cancelReservation)],
+  reservationController.cancelReservation
+);
+
 export default router;

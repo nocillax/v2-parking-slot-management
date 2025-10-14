@@ -73,9 +73,30 @@ const getFacilityReservations = asyncHandler(async (req, res) => {
   res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, reservations));
 });
 
+const cancelReservation = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  const cancelledReservation = await reservationService.cancelReservationById(
+    id,
+    userId
+  );
+
+  res
+    .status(httpStatus.OK)
+    .json(
+      new ApiResponse(
+        httpStatus.OK,
+        cancelledReservation,
+        "Reservation cancelled successfully."
+      )
+    );
+});
+
 export const reservationController = {
   createReservation,
   getUserReservations,
   getReservation,
   getFacilityReservations,
+  cancelReservation,
 };

@@ -217,9 +217,50 @@ const getReservationsByFacilityId = async (facilityId, adminId, options) => {
   });
 };
 
+const cancelReservationById = async (reservationId, userId) => {
+  return sequelize.transaction(async (t) => {
+    // 1. Find the reservation, ensuring it belongs to the user
+    const reservation = await models.Reservation.findOne({
+      where: {
+        id: reservationId,
+        user_id: userId,
+      },
+      transaction: t,
+      lock: t.LOCK.UPDATE, // Lock the row to prevent race conditions
+    });
+
+    if (!reservation) {
+      throw new ApiError(
+        404,
+        "Reservation not found or you do not have permission to cancel it."
+      );
+    }
+
+    // 2. Check if the reservation is in a cancellable state
+    if (reservation.status !== "Active") {
+      throw new ApiError(
+        400,
+        `Cannot cancel reservation with status '${reservation.status}'. Only 'Active' reservations can be cancelled.`
+      );
+    }
+
+    // 3. Update reservation and free up the slot
+    reservation.status = "Cancelled";
+    await reservation.save({ transaction: t });
+
+    await models.Slot.update(
+      { status: "Free" },
+      { where: { id: reservation.slot_id }, transaction: t }
+    );
+
+    return reservation;
+  });
+};
+
 export const reservationService = {
   createReservation,
   getReservationsByUserId,
   getReservationById,
   getReservationsByFacilityId,
+  cancelReservationById,
 };

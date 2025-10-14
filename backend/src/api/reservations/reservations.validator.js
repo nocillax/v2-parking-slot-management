@@ -58,9 +58,16 @@ const getFacilityReservations = {
   }),
 };
 
+const cancelReservation = {
+  params: Joi.object({
+    id: Joi.string().uuid().required(),
+  }),
+};
+
 export const reservationValidator = {
   createReservation,
   getUserReservations,
   getReservation,
   getFacilityReservations,
+  cancelReservation,
 };
