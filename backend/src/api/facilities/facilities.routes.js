@@ -12,4 +12,28 @@ router.post(
   facilityController.createFacility
 );
 
+router.get(
+  "/",
+  validate(facilityValidator.getFacilities),
+  facilityController.getFacilities
+);
+
+router.get(
+  "/:facilityId",
+  validate(facilityValidator.getFacility),
+  facilityController.getFacility
+);
+
+router.patch(
+  "/:facilityId",
+  [protect, authorize("admin"), validate(facilityValidator.updateFacility)],
+  facilityController.updateFacility
+);
+
+router.delete(
+  "/:facilityId",
+  [protect, authorize("admin"), validate(facilityValidator.getFacility)], // Re-use getFacility validator for params
+  facilityController.deleteFacility
+);
+
 export default router;

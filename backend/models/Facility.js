@@ -80,6 +80,14 @@ const Facility = sequelize.define(
         name: "facility_geolocation_index",
       },
     ],
+    getterMethods: {
+      // Ensure available_slots from subquery is an integer
+      available_slots() {
+        const count = this.getDataValue("available_slots");
+        // The subquery might return null or a string, so we parse it safely.
+        return count ? parseInt(count, 10) : 0;
+      },
+    },
   }
 );
 
