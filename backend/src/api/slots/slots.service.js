@@ -94,10 +94,33 @@ const updateSlotStatus = async (facilityId, slotId, status, adminId) => {
   return slot;
 };
 
+const deleteSlotById = async (facilityId, slotId, adminId) => {
+  const slot = await getSlotById(facilityId, slotId);
+  if (!slot) {
+    throw new ApiError(404, "Slot not found in this facility.");
+  }
+
+  const facility = await slot.getFacility();
+  if (facility.admin_id !== adminId) {
+    throw new ApiError(403, "You are not authorized to delete this slot.");
+  }
+
+  // Safety check: only allow deletion of free slots
+  if (slot.status !== "Free") {
+    throw new ApiError(
+      400,
+      `Cannot delete slot. It is currently in '${slot.status}' status.`
+    );
+  }
+
+  await slot.destroy();
+};
+
 export const slotService = {
   createSlots,
   getSlotsByFacility,
   getSlotById,
   updateSlotById,
   updateSlotStatus,
+  deleteSlotById,
 };

@@ -58,10 +58,18 @@ const updateSlotStatus = {
   }),
 };
 
+const deleteSlot = {
+  params: Joi.object().keys({
+    facilityId: Joi.string().uuid().required(),
+    slotId: Joi.string().uuid().required(),
+  }),
+};
+
 export const slotValidator = {
   createSlots,
   getSlots,
   getSlot,
   updateSlot,
   updateSlotStatus,
+  deleteSlot,
 };

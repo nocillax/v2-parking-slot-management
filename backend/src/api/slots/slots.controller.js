@@ -80,10 +80,22 @@ const updateSlotStatus = asyncHandler(async (req, res) => {
     );
 });
 
+const deleteSlot = asyncHandler(async (req, res) => {
+  const { facilityId, slotId } = req.params;
+  const adminId = req.user.id;
+
+  await slotService.deleteSlotById(facilityId, slotId, adminId);
+
+  res
+    .status(httpStatus.OK)
+    .json(new ApiResponse(httpStatus.OK, null, "Slot deleted successfully."));
+});
+
 export const slotController = {
   createSlots,
   getSlots,
   getSlot,
   updateSlot,
   updateSlotStatus,
+  deleteSlot,
 };

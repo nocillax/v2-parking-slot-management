@@ -27,4 +27,10 @@ router.patch(
   slotController.updateSlotStatus
 );
 
+router.delete(
+  "/:slotId",
+  [protect, authorize("admin"), validate(slotValidator.deleteSlot)],
+  slotController.deleteSlot
+);
+
 export default router;
