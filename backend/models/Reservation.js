@@ -178,7 +178,7 @@ Reservation.prototype.checkOut = async function (options = {}) {
   // Free the slot
   await slot.free({ transaction: options.transaction });
 
-  return this;
+  return slot;
 };
 
 // Cancel reservation
@@ -194,7 +194,7 @@ Reservation.prototype.cancel = async function (options = {}) {
   const slot = await this.getSlot({ transaction: options.transaction });
   await slot.free({ transaction: options.transaction });
 
-  return this;
+  return slot;
 };
 
 // Calculate duration in hours

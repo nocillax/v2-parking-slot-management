@@ -50,4 +50,10 @@ router.patch(
   reservationController.checkOutReservation
 );
 
+router.post(
+  "/from-waitlist",
+  [protect, validate(reservationValidator.createFromWaitlist)],
+  reservationController.createFromWaitlist
+);
+
 export default router;

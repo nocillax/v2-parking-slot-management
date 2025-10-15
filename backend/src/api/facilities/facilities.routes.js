@@ -5,13 +5,16 @@ import { protect, authorize } from "#src/middleware/auth.middleware.js";
 import { validate } from "#src/middleware/validate.middleware.js";
 import slotRoutes from "../slots/slots.routes.js";
 import { reservationController } from "../reservations/reservations.controller.js";
-import { reservationValidator } from "../reservations/reservations.validator.js";
+import { reservationValidator } from "#api/reservations/reservations.validator.js";
+import { facilityNestedRouter as waitlistFacilityRoutes } from "#api/waitlist/waitlist.routes.js";
 
 const router = Router();
 
 // Nest the slot routes
 // Any request to /api/v1/facilities/:facilityId/slots... will be handled by slotRoutes
 router.use("/:facilityId/slots", slotRoutes);
+// Nest the waitlist routes
+router.use("/:facilityId/waitlist", waitlistFacilityRoutes);
 
 // Admin route to get all reservations for a facility
 router.get(

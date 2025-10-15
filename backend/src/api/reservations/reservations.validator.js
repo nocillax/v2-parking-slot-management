@@ -10,7 +10,7 @@ const reservationRequestSchema = Joi.object({
 const createReservation = {
   body: Joi.object({
     facility_id: Joi.string().uuid().required(),
-    start_time: Joi.date().iso().required(),
+    start_time: Joi.date().iso().min("now").required(),
     end_time: Joi.date().iso().greater(Joi.ref("start_time")).required(),
     requests: Joi.array().items(reservationRequestSchema).min(1).required(),
   }),
@@ -81,6 +81,12 @@ const checkOutReservation = {
   body: Joi.object({}), // Explicitly state that the body should be an empty object
 };
 
+const createFromWaitlist = {
+  body: Joi.object({
+    waitlist_id: Joi.string().uuid().required(),
+  }),
+};
+
 export const reservationValidator = {
   createReservation,
   getUserReservations,
@@ -89,4 +95,5 @@ export const reservationValidator = {
   cancelReservation,
   checkInReservation,
   checkOutReservation,
+  createFromWaitlist,
 };
