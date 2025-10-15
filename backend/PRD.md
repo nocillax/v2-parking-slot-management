@@ -149,7 +149,7 @@ Division (Dhaka, Chittagong, etc.)
 - Attributes:
 
   - `id`
-  - `slot_type` (`Normal`, `VIP`, `Handicapped`)
+  - `slot_type` (`Normal`, `VIP`, `Handicapped`, `Bike`)
   - `status` (`Free`, `Reserved`, `Occupied`)
   - `hourly_rate`
   - `location_tag` (optional: floor, section, coordinates)
@@ -263,13 +263,13 @@ Division (Dhaka, Chittagong, etc.)
 
 - When all slots are full:
 
-  - User joins `waitlist` for slot type or lot
+  - User can join a `waitlist` for a specific facility and slot type.
 
 - System:
 
-  - Notifies first user in queue when a slot becomes available
-  - Gives 5 minutes to confirm
-  - If user doesn’t act → passes to next person
+  - When a slot becomes free (via check-out or cancellation), the system notifies the first user in the queue for that slot type.
+  - The user is given a short window (e.g., 5 minutes) to claim the spot and create a reservation.
+  - If the user doesn't act, their notification expires, and the system will offer the slot to the next person when another slot becomes available.
 
 - Waitlist entries auto-expire after X hours.
 
@@ -383,7 +383,7 @@ PARKING_LOTS (
 SLOTS (
   id PK,
   lot_id FK -> PARKING_LOTS.id,
-  slot_type ENUM('Normal','VIP','Handicapped'),
+  slot_type ENUM('Normal','VIP','Handicapped','Bike'),
   status ENUM('Free','Reserved','Occupied'),
   hourly_rate DECIMAL,
   location_tag
@@ -415,9 +415,11 @@ PAYMENTS (
 WAITLIST (
   id PK,
   user_id FK -> USERS.id,
-  slot_type_pref,
+  facility_id FK -> FACILITIES.id,
+  slot_type_pref ENUM('Normal','VIP','Handicapped','Bike'),
   created_at,
-  status ENUM('Active','Fulfilled','Expired')
+  status ENUM('Active','Notified','Fulfilled','Expired','Cancelled'),
+  priority INTEGER
 )
 
 NOTIFICATIONS (
@@ -449,21 +451,24 @@ NOTIFICATIONS (
 
 ### **Slots & Lots**
 
-- `GET /lots?area_id=<uuid>` (filter by area)
-- `GET /lots?district_id=<uuid>` (filter by district)
-- `GET /lots/nearby?lat=<>&lon=<>&radius=<>` (nearby search)
-- `GET /lots`
-- `GET /lots/:id/slots`
-- `POST /lots/:id/slots` (Admin)
-- `PATCH /slots/:id/status` (System/Admin)
+- `GET /facilities` (Filter by area, district, etc.)
+- `GET /facilities/:facilityId/slots`
+- `POST /facilities/:facilityId/slots` (Admin)
+- `GET /facilities/:facilityId/slots/:slotId`
+- `PATCH /facilities/:facilityId/slots/:slotId` (Admin)
+- `PATCH /facilities/:facilityId/slots/:slotId/status` (Admin)
+- `DELETE /facilities/:facilityId/slots/:slotId` (Admin)
 
 ### **Reservations**
 
-- `POST /reservations`
-- `GET /reservations/user`
+- `POST /reservations` (Body: `facility_id`, `start_time`, `end_time`, `requests: [{ slot_type, count }]`)
+- `POST /reservations/from-waitlist` (Body: `waitlist_id`)
+- `GET /reservations/me`
+- `GET /reservations/:id`
+- `GET /facilities/:facilityId/reservations` (Admin)
 - `PATCH /reservations/:id/cancel`
-- `PATCH /reservations/:id/checkin`
-- `PATCH /reservations/:id/checkout`
+- `PATCH /reservations/:id/check-in` (Admin)
+- `PATCH /reservations/:id/check-out` (Admin)
 
 ### **Payments**
 
@@ -472,8 +477,9 @@ NOTIFICATIONS (
 
 ### **Waitlist**
 
-- `POST /waitlist`
-- `GET /waitlist/user`
+- `POST /facilities/:facilityId/waitlist`
+- `GET /waitlist/me`
+- `DELETE /waitlist/:id`
 
 ### **Analytics**
 
