@@ -6,6 +6,8 @@ interface User {
   name: string;
   email: string;
   role: "user" | "admin";
+  default_vehicle_no?: string;
+  default_area_id?: string;
 }
 
 interface AuthState {
@@ -14,6 +16,7 @@ interface AuthState {
   isAuthenticated: boolean;
   login: (user: User, token: string) => void;
   logout: () => void;
+  updateUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
         }),
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      updateUser: (user) => set({ user }),
     }),
     {
       name: "auth-storage", // name of the item in the storage (must be unique)

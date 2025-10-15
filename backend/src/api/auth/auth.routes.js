@@ -14,6 +14,7 @@ router.post("/login", validate(authValidator.login), authController.login);
 
 // Protected route
 router.get("/me", protect, authController.getMe);
+router.patch("/me", protect, authController.updateMe);
 
 // Admin-only route for testing RBAC
 router.get(

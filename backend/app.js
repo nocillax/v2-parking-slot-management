@@ -20,6 +20,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Ensure req.body is an object for GET requests
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.body) {
+    req.body = {};
+  }
+  next();
+});
+
 // Basic health check route
 app.get("/health", (req, res) => {
   res.json({

@@ -57,7 +57,7 @@ This document outlines the step-by-step plan to build the frontend for the ParkE
 
   - [ ] Create the main dashboard page at `/`.
   - [ ] This page should be protected and only accessible to logged-in users.
-  - [ ] Display a grid or list of available parking slots fetched from the backend (`/parking-slots`).
+  - [ ] Display a grid or list of available parking slots fetched from the backend (`/facilities`).
   - [ ] Implement filtering controls (e.g., by division, district, area).
   - [ ] Each parking slot card should show its status (Available, Reserved) and a "Reserve" button.
 
@@ -93,7 +93,7 @@ This document outlines the step-by-step plan to build the frontend for the ParkE
 
 - [ ] **Task 10: Parking Slot Management (Admin)**
 
-  - [ ] Create a page at `/admin/parking-slots`.
+  - [ ] Create a page at `/admin/facilities`.
   - [ ] Implement full CRUD (Create, Read, Update, Delete) functionality for parking slots.
   - [ ] Use a form within a `Dialog` or `Sheet` for creating/editing slots.
 

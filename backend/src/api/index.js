@@ -4,6 +4,9 @@ import notificationRoutes from "./notifications/notifications.routes.js";
 import facilityRoutes from "./facilities/facilities.routes.js";
 import reservationRoutes from "./reservations/reservations.routes.js";
 import { userRouter as waitlistUserRoutes } from "./waitlist/waitlist.routes.js";
+import divisionRoutes from "./divisions/divisions.routes.js";
+import districtRoutes from "./districts/districts.routes.js";
+import areaRoutes from "./areas/areas.routes.js";
 
 const router = Router();
 
@@ -12,5 +15,8 @@ router.use("/notifications", notificationRoutes);
 router.use("/facilities", facilityRoutes);
 router.use("/reservations", reservationRoutes);
 router.use("/waitlist", waitlistUserRoutes);
+router.use("/divisions", divisionRoutes);
+router.use("/districts", districtRoutes);
+router.use("/areas", areaRoutes);
 
 export default router;
