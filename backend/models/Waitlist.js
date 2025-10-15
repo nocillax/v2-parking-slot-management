@@ -34,7 +34,7 @@ const Waitlist = sequelize.define(
 
     // Preferred slot type
     slot_type_pref: {
-      type: DataTypes.ENUM("Normal", "VIP", "Handicapped"),
+      type: DataTypes.ENUM("Normal", "VIP", "Handicapped", "Bike"),
       allowNull: false,
       defaultValue: "Normal",
     },
