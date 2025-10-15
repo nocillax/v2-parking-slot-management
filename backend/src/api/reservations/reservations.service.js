@@ -2,6 +2,7 @@ import { sequelize } from "#models/index.js";
 import models from "#models/index.js";
 import { Op } from "sequelize";
 import { ApiError } from "#utils/ApiError.js";
+import { waitlistService } from "#api/waitlist/waitlist.service.js";
 import { notificationService } from "#services/notification.service.js";
 import dayjs from "dayjs";
 
@@ -237,7 +238,12 @@ const cancelReservationById = async (reservationId, userId) => {
     }
 
     // 3. Use the model method to perform the cancellation logic
-    await reservation.cancel({ transaction: t });
+    const freedSlot = await reservation.cancel({ transaction: t });
+
+    // 4. After transaction commits, process the waitlist for the freed slot
+    t.afterCommit(() => {
+      waitlistService.processNextInQueue(freedSlot).catch(console.error);
+    });
 
     return reservation;
   });
@@ -326,9 +332,69 @@ const checkOutReservationById = async (reservationId, adminId) => {
 
     // Step 4: Use the model method to perform the check-out logic
     // The model now handles status changes, overstay calcs, and slot/payment updates
-    await reservation.checkOut({ transaction: t });
+    const freedSlot = await reservation.checkOut({ transaction: t });
+
+    t.afterCommit(() => {
+      waitlistService.processNextInQueue(freedSlot).catch(console.error);
+    });
 
     return reservation;
+  });
+};
+
+const createReservationFromWaitlist = async (userId, waitlistId) => {
+  return sequelize.transaction(async (t) => {
+    // 1. Find and lock the waitlist entry
+    const waitlistEntry = await models.Waitlist.findOne({
+      where: { id: waitlistId, user_id: userId },
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
+
+    if (!waitlistEntry) {
+      throw new ApiError(404, "Waitlist entry not found.");
+    }
+
+    // 2. Validate the waitlist entry's state
+    if (waitlistEntry.status !== "Notified") {
+      throw new ApiError(400, "You have not been notified for a slot yet.");
+    }
+    if (new Date() > waitlistEntry.notification_expires_at) {
+      waitlistEntry.status = "Expired";
+      await waitlistEntry.save({ transaction: t });
+      throw new ApiError(400, "Your offer to reserve this slot has expired.");
+    }
+
+    // 3. Get the offered slot from the notification metadata
+    const { slot_id } = waitlistEntry.metadata;
+    const slot = await models.Slot.findByPk(slot_id, {
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
+
+    if (!slot || slot.status !== "Free") {
+      throw new ApiError(409, "The offered slot is no longer available.");
+    }
+
+    // 4. Create the reservation
+    const reservationData = {
+      facility_id: slot.facility_id,
+      start_time: waitlistEntry.desired_start_time,
+      end_time: waitlistEntry.desired_end_time,
+      requests: [{ slot_type: slot.slot_type, count: 1 }],
+    };
+    const createdReservations = await createReservation(
+      userId,
+      reservationData,
+      t
+    );
+
+    // 5. Fulfill the waitlist entry
+    waitlistEntry.status = "Fulfilled";
+    await waitlistEntry.save({ transaction: t });
+
+    // The createReservation function already returns the reservation and slot
+    return createdReservations;
   });
 };
 
@@ -340,4 +406,5 @@ export const reservationService = {
   cancelReservationById,
   checkInReservationById,
   checkOutReservationById,
+  createReservationFromWaitlist,
 };

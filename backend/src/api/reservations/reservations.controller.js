@@ -153,6 +153,23 @@ const checkOutReservation = asyncHandler(async (req, res) => {
     );
 });
 
+const createFromWaitlist = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { waitlist_id } = req.body;
+
+  const createdReservations =
+    await reservationService.createReservationFromWaitlist(userId, waitlist_id);
+
+  // The createReservation service already handles notifications, so we just respond
+  res.status(httpStatus.CREATED).json(
+    new ApiResponse(
+      httpStatus.CREATED,
+      createdReservations.map(({ reservation }) => reservation),
+      "Reservation created successfully from waitlist."
+    )
+  );
+});
+
 export const reservationController = {
   createReservation,
   getUserReservations,
@@ -161,4 +178,5 @@ export const reservationController = {
   cancelReservation,
   checkInReservation,
   checkOutReservation,
+  createFromWaitlist,
 };

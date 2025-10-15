@@ -34,7 +34,7 @@ export const initializeDatabase = async () => {
     // This will add the 'Bike' ENUM value without dropping the tables.
     // WARNING: This is not recommended for production. Use migrations instead.
     // await sequelize.models.Slot.sync({ alter: true });
-    // await sequelize.models.Waitlist.sync({ alter: true });
+    // await sequelize.models.Reservation.sync({ alter: true });
     // console.log("✅ Slot and Waitlist models were synchronized successfully.");
 
     // The full sync is commented out to avoid the 'divisions' table error for now.
