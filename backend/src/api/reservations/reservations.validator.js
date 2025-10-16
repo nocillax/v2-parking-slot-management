@@ -10,7 +10,7 @@ const reservationRequestSchema = Joi.object({
 const createReservation = {
   body: Joi.object({
     facility_id: Joi.string().uuid().required(),
-    start_time: Joi.date().iso().min("now").required(),
+    start_time: Joi.date().iso().required(), // Allow any time, validation will be in service
     end_time: Joi.date().iso().greater(Joi.ref("start_time")).required(),
     requests: Joi.array().items(reservationRequestSchema).min(1).required(),
   }),
@@ -28,6 +28,7 @@ const getUserReservations = {
       "Overstayed",
       "Cancelled"
     ),
+    slot_type: Joi.string().valid("Normal", "VIP", "Handicapped", "Bike"),
     sortBy: Joi.string().valid("start_time:asc", "start_time:desc"),
   }),
 };

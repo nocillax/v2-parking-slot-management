@@ -22,7 +22,21 @@ const createSlots = asyncHandler(async (req, res) => {
 
 const getSlots = asyncHandler(async (req, res) => {
   const { facilityId } = req.params;
-  const slots = await slotService.getSlotsByFacility(facilityId, req.query);
+  const { start_time, end_time } = req.query;
+
+  let slots;
+  if (start_time && end_time) {
+    // Check availability for specific time period
+    slots = await slotService.getSlotsWithAvailability(
+      facilityId,
+      start_time,
+      end_time,
+      req.query
+    );
+  } else {
+    // Get all slots without time filtering
+    slots = await slotService.getSlotsByFacility(facilityId, req.query);
+  }
 
   res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, slots));
 });

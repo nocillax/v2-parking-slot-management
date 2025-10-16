@@ -15,8 +15,21 @@ const findAvailableSlots = async (
     where: {
       status: { [Op.notIn]: ["Cancelled", "Expired", "Completed"] },
       [Op.or]: [
-        { start_time: { [Op.between]: [start_time, end_time] } },
-        { end_time: { [Op.between]: [start_time, end_time] } },
+        // Case 1: Existing reservation starts during the new reservation period.
+        {
+          start_time: {
+            [Op.lt]: end_time,
+            [Op.gt]: start_time,
+          },
+        },
+        // Case 2: Existing reservation ends during the new reservation period.
+        {
+          end_time: {
+            [Op.lt]: end_time,
+            [Op.gt]: start_time,
+          },
+        },
+        // Case 3: Existing reservation completely envelops the new reservation period.
         {
           [Op.and]: [
             { start_time: { [Op.lte]: start_time } },
@@ -76,6 +89,11 @@ const createReservationRecords = async (
 const createReservation = async (userId, reservationData) => {
   const { facility_id, start_time, end_time, requests } = reservationData;
 
+  // Validate that start_time is not in the past (allow up to 5 minutes in the past for timezone/delay tolerance)
+  if (dayjs(start_time).isBefore(dayjs().subtract(5, "minute"))) {
+    throw new ApiError(400, "Start time cannot be in the past.");
+  }
+
   return sequelize.transaction(async (t) => {
     let allCreatedReservations = [];
 
@@ -98,10 +116,11 @@ const createReservation = async (userId, reservationData) => {
       );
 
       const reservedSlotIds = availableSlots.map((slot) => slot.id);
-      await models.Slot.update(
-        { status: "Reserved" },
-        { where: { id: { [Op.in]: reservedSlotIds } }, transaction: t }
-      );
+      // Don't change slot status - keep slots as "Free" and check availability by time
+      // await models.Slot.update(
+      //   { status: "Reserved" },
+      //   { where: { id: { [Op.in]: reservedSlotIds } }, transaction: t }
+      // );
 
       allCreatedReservations.push(...createdReservations);
     }
@@ -111,7 +130,13 @@ const createReservation = async (userId, reservationData) => {
 };
 
 const getReservationsByUserId = async (userId, options) => {
-  const { page = 1, limit = 10, status, sortBy = "start_time:desc" } = options;
+  const {
+    page = 1,
+    limit = 10,
+    status,
+    slot_type,
+    sortBy = "start_time:asc",
+  } = options;
 
   const where = { user_id: userId };
   if (status) {
@@ -126,6 +151,8 @@ const getReservationsByUserId = async (userId, options) => {
       {
         model: models.Slot,
         as: "slot",
+        where: slot_type ? { slot_type } : undefined,
+        required: !!slot_type,
         include: [
           {
             model: models.Facility,

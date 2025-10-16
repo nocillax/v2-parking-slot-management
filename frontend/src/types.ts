@@ -1,3 +1,19 @@
+export interface Slot {
+  id: string;
+  facility_id: string;
+  slot_type: "Normal" | "VIP" | "Handicapped" | "Bike";
+  status: "Free" | "Reserved" | "Occupied";
+  hourly_rate?: number; // Optional since we use global pricing now
+  location_tag?: string;
+  createdAt: string;
+  updatedAt: string;
+  facility?: {
+    id: string;
+    name: string;
+    address: string;
+  };
+}
+
 export interface Facility {
   id: string;
   name: string;
@@ -36,12 +52,13 @@ export interface Reservation {
     | "Cancelled";
   total_amount: number;
   payment_status: "Pending" | "Paid" | "Failed";
-  vehicle_no?: string;
+  vehicle_number?: string;
   check_in_time?: string;
   check_out_time?: string;
   slot?: {
     id: string;
-    slot_number: string;
+    location_tag: string;
+    slot_type: string;
     facility: {
       id: string;
       name: string;

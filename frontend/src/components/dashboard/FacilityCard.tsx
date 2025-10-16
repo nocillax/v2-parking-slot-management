@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Facility } from "@/types";
+import { SlotsDialog } from "./SlotsDialog";
 
 interface FacilityCardProps {
   facility: Facility;
@@ -28,7 +29,9 @@ export function FacilityCard({ facility }: FacilityCardProps) {
         </CardDescription>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">View Slots</Button>
+        <SlotsDialog facility={facility}>
+          <Button className="w-full">View Slots</Button>
+        </SlotsDialog>
       </CardFooter>
     </Card>
   );

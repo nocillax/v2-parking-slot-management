@@ -36,7 +36,7 @@ const Slot = sequelize.define(
 
     hourly_rate: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+      allowNull: true, // Made optional since we'll use global pricing
       validate: {
         min: 0,
       },

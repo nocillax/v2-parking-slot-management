@@ -1,5 +1,6 @@
 import models from "#models/index.js";
 import { ApiError } from "#utils/ApiError.js";
+import { getSlotPrice } from "#utils/priceConfig.js";
 
 const createSlots = async (facilityId, slotData, adminId) => {
   const facility = await models.Facility.findByPk(facilityId);
@@ -22,6 +23,7 @@ const createSlots = async (facilityId, slotData, adminId) => {
     slotsToCreate.map((slot) => ({
       ...slot,
       facility_id: facilityId,
+      hourly_rate: getSlotPrice(slot.slot_type), // Auto-set price based on type
     }))
   );
 
@@ -102,6 +104,71 @@ const updateSlotStatus = async (facilityId, slotId, status, adminId) => {
   return slot;
 };
 
+const getSlotsWithAvailability = async (
+  facilityId,
+  startTime,
+  endTime,
+  options
+) => {
+  const { page = 1, limit = 20, status, slot_type } = options;
+
+  // First get all slots
+  const allSlots = await models.Slot.findAll({
+    where: {
+      facility_id: facilityId,
+      ...(slot_type && { slot_type }),
+      ...(status && { status }),
+    },
+    order: [["location_tag", "ASC"]],
+  });
+
+  // Check availability for each slot
+  const slotsWithAvailability = await Promise.all(
+    allSlots.map(async (slot) => {
+      const isAvailable = await checkSlotAvailability(
+        slot.id,
+        startTime,
+        endTime
+      );
+      return {
+        ...slot.toJSON(),
+        is_available: isAvailable,
+        availability_status: isAvailable ? "Available" : "Reserved",
+      };
+    })
+  );
+
+  // Apply pagination
+  const offset = (page - 1) * limit;
+  const paginatedSlots = slotsWithAvailability.slice(offset, offset + limit);
+
+  return {
+    count: slotsWithAvailability.length,
+    rows: paginatedSlots,
+  };
+};
+
+const checkSlotAvailability = async (slotId, startTime, endTime) => {
+  const conflictingReservations = await models.Reservation.findAll({
+    where: {
+      slot_id: slotId,
+      status: { [Op.notIn]: ["Cancelled", "Expired", "Completed"] },
+      [Op.or]: [
+        { start_time: { [Op.between]: [startTime, endTime] } },
+        { end_time: { [Op.between]: [startTime, endTime] } },
+        {
+          [Op.and]: [
+            { start_time: { [Op.lte]: startTime } },
+            { end_time: { [Op.gte]: endTime } },
+          ],
+        },
+      ],
+    },
+  });
+
+  return conflictingReservations.length === 0;
+};
+
 const deleteSlotById = async (facilityId, slotId, adminId) => {
   const slot = await getSlotById(facilityId, slotId);
   if (!slot) {
@@ -127,6 +194,7 @@ const deleteSlotById = async (facilityId, slotId, adminId) => {
 export const slotService = {
   createSlots,
   getSlotsByFacility,
+  getSlotsWithAvailability,
   getSlotById,
   updateSlotById,
   updateSlotStatus,
