@@ -16,12 +16,13 @@ interface AuthState {
   isAuthenticated: boolean;
   login: (user: User, token: string) => void;
   logout: () => void;
+  setToken: (token: string) => void;
   updateUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
@@ -31,6 +32,11 @@ export const useAuthStore = create<AuthState>()(
           token,
           isAuthenticated: true,
         }),
+      setToken: (token) => {
+        set({ token });
+        // Manually and synchronously update localStorage to prevent race conditions with the API interceptor
+        localStorage.setItem("auth-storage", JSON.stringify(get()));
+      },
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
       updateUser: (user) => set({ user }),
     }),

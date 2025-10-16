@@ -49,7 +49,6 @@ const findAvailableSlots = async (
       id: { [Op.notIn]: unavailableSlotIds },
       facility_id,
       slot_type,
-      status: "Free",
     },
     limit: count,
     transaction,

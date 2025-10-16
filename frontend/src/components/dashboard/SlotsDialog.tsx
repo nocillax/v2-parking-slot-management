@@ -22,6 +22,7 @@ import { Slot, Facility } from "@/types";
 import api from "@/lib/api";
 import { Car, Bike, Crown, Accessibility, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { formatSlotTypeForAPI } from "@/utils/formatters";
 import { getSlotPrice } from "@/utils/priceConfig";
 
 interface SlotsDialogProps {
@@ -133,13 +134,7 @@ export function SlotsDialog({ facility, children }: SlotsDialogProps) {
       setReserving(true);
 
       // Convert to UTC for consistent server-side validation
-      const formattedSlotType =
-        selectedSlotType === "all"
-          ? "Normal"
-          : selectedSlotType.toLowerCase() === "vip"
-          ? "VIP"
-          : selectedSlotType.charAt(0).toUpperCase() +
-            selectedSlotType.slice(1).toLowerCase();
+      const formattedSlotType = formatSlotTypeForAPI(selectedSlotType);
 
       const reservationData = {
         facility_id: facility.id,
