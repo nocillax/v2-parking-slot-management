@@ -21,10 +21,7 @@ import { useState } from "react";
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
   email: z.string().email("Invalid email address").max(255, "Email too long"),
-  vehicle: z
-    .string()
-    .min(1, "Vehicle number is required")
-    .max(20, "Vehicle number too long"),
+  vehicle: z.string().max(20, "Vehicle number too long").optional(),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
@@ -57,7 +54,6 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     try {
       const response = await api.patch("/auth/me", {
         name: data.name,
-        email: data.email,
         default_vehicle_no: data.vehicle,
       });
       onUpdate(response.data.data.user);
@@ -100,7 +96,12 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
             <FormItem>
               <FormLabel className="text-base font-medium">Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Enter your email" {...field} />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  {...field}
+                  readOnly
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

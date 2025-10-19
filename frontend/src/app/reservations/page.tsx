@@ -1,15 +1,13 @@
 import { ReservationList } from "@/components/reservations/ReservationList";
-import { Metadata } from "next";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-export const metadata: Metadata = {
-  title: "My Reservations",
-  description: "View your active and past parking reservations.",
-};
-
-export default function MyReservationsPage() {
+export default function ReservationsPage() {
   return (
-    <div className="container mx-auto py-8">
-      <ReservationList />
-    </div>
+    <ProtectedRoute>
+      <PageContainer>
+        <ReservationList />
+      </PageContainer>
+    </ProtectedRoute>
   );
 }

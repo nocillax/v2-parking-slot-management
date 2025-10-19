@@ -23,32 +23,6 @@ const models = {
   Notification,
 };
 
-// Set up location hierarchy associations
-Division.hasMany(District, {
-  foreignKey: "division_id",
-  as: "districts",
-});
-
-District.belongsTo(Division, {
-  foreignKey: "division_id",
-  as: "division",
-});
-
-District.hasMany(Area, {
-  foreignKey: "district_id",
-  as: "areas",
-});
-
-Area.belongsTo(District, {
-  foreignKey: "district_id",
-  as: "district",
-});
-
-Area.hasMany(Facility, {
-  foreignKey: "area_id",
-  as: "facilities",
-});
-
 // Set up all other model associations
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {

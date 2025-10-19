@@ -1,19 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LogOut, ParkingSquare, User as UserIcon } from "lucide-react";
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-  };
 
   const pathname = usePathname();
 
@@ -24,11 +19,12 @@ export function Navbar() {
     );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold sm:inline-block">ParkEasy</span>
+            <ParkingSquare className="h-6 w-6" />
+            <span className="font-bold">ParkEasy</span>
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
             {isAuthenticated && (
@@ -54,14 +50,23 @@ export function Navbar() {
         <div className="flex flex-1 items-center justify-end space-x-4">
           <div className="flex items-center space-x-2">
             {isAuthenticated ? (
-              <>
-                <span className="hidden text-sm text-muted-foreground sm:inline-block">
-                  Welcome, {user?.name}
-                </span>
-                <Button variant="ghost" onClick={handleLogout}>
-                  Logout
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  asChild
+                  className="flex items-center gap-2 px-2"
+                >
+                  <Link href="/profile">
+                    <span className="hidden text-sm sm:inline-block">
+                      {user?.name}
+                    </span>
+                    <UserIcon className="h-5 w-5" />
+                  </Link>
                 </Button>
-              </>
+                <Button variant="ghost" size="icon" onClick={logout}>
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </div>
             ) : (
               <>
                 <Button variant="ghost" asChild>

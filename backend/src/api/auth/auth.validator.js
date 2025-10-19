@@ -29,4 +29,23 @@ const resetPassword = {
   }),
 };
 
-export const authValidator = { register, login, forgotPassword, resetPassword };
+const updateUser = {
+  body: Joi.object()
+    .keys({
+      name: Joi.string().optional(),
+      // Make vehicle number optional and allow it to be cleared with an empty string or null
+      default_vehicle_no: Joi.string().max(20).optional().allow("", null),
+      default_division_id: Joi.string().uuid().optional().allow(null),
+      default_district_id: Joi.string().uuid().optional().allow(null),
+      default_area_id: Joi.string().uuid().optional().allow(null),
+    })
+    .min(1), // Ensure at least one field is being updated
+};
+
+export const authValidator = {
+  register,
+  login,
+  forgotPassword,
+  resetPassword,
+  updateUser,
+};

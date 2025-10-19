@@ -106,4 +106,16 @@ District.static = {
   },
 };
 
+// Define model relationships
+District.associate = (models) => {
+  District.belongsTo(models.Division, {
+    foreignKey: "division_id",
+    as: "division",
+  });
+  District.hasMany(models.Area, {
+    foreignKey: "district_id",
+    as: "areas",
+  });
+};
+
 export default District;

@@ -81,8 +81,8 @@ const Area = sequelize.define(
 
 // Instance methods
 Area.prototype.getParkingLots = async function () {
-  const { ParkingLot } = sequelize.models;
-  return await ParkingLot.findAll({
+  const { Facility } = sequelize.models;
+  return await Facility.findAll({
     where: { area_id: this.id },
     order: [["name", "ASC"]],
   });
@@ -96,13 +96,18 @@ Area.prototype.getDistrict = async function () {
 Area.prototype.getFullLocation = async function () {
   const { District, Division } = sequelize.models;
   const district = await District.findByPk(this.district_id, {
-    include: [{ model: Division }],
+    include: [{ model: Division, as: "division" }], // Explicitly use the 'division' alias
   });
+
+  if (!district || !district.division) {
+    // This check is now more reliable
+    return null;
+  }
 
   return {
     area: this.name,
     district: district.name,
-    division: district.Division.name,
+    division: district.division.name, // FIX: Use the correct alias 'division' (lowercase)
   };
 };
 
@@ -166,7 +171,7 @@ Area.static = {
   },
 
   async getWithParkingLotCounts(districtId) {
-    const { ParkingLot } = sequelize.models;
+    const { Facility } = sequelize.models;
     const where = districtId ? { district_id: districtId } : {};
 
     return await Area.findAll({
@@ -174,14 +179,14 @@ Area.static = {
       attributes: {
         include: [
           [
-            sequelize.fn("COUNT", sequelize.col("ParkingLots.id")),
-            "parking_lot_count",
+            sequelize.fn("COUNT", sequelize.col("facilities.id")),
+            "facility_count",
           ],
         ],
       },
       include: [
         {
-          model: ParkingLot,
+          model: Facility,
           attributes: [],
         },
       ],
@@ -192,6 +197,18 @@ Area.static = {
       ],
     });
   },
+};
+
+// Define model relationships
+Area.associate = (models) => {
+  Area.belongsTo(models.District, {
+    foreignKey: "district_id",
+    as: "district",
+  });
+  Area.hasMany(models.Facility, {
+    foreignKey: "area_id",
+    as: "facilities",
+  });
 };
 
 export default Area;

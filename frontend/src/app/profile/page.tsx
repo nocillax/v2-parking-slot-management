@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ProfileForm } from "@/components/auth/ProfileForm";
 import {
@@ -46,45 +47,58 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <main className="container mx-auto flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold md:text-3xl">Profile</h1>
+        <PageContainer>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-5 w-72" />
+            </div>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardHeader>
+              <CardContent className="space-y-8 pt-6">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <Skeleton className="h-10 w-32" />
+              </CardContent>
+            </Card>
           </div>
-          <Card>
-            <CardHeader className="space-y-2">
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="h-4 w-64" />
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-32 mt-6" />
-            </CardContent>
-          </Card>
-        </main>
+        </PageContainer>
       </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute>
-      <main className="container mx-auto flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold md:text-3xl">Profile</h1>
+      <PageContainer>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
+            <p className="text-muted-foreground">
+              View and manage your account details.
+            </p>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>
+                Update your name and default vehicle number.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {user && <ProfileForm user={user} onUpdate={updateUser} />}
+            </CardContent>
+          </Card>
         </div>
-        <Card>
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-xl">Personal Information</CardTitle>
-            <CardDescription>
-              View and update your profile information.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ProfileForm user={user!} onUpdate={updateUser} />
-          </CardContent>
-        </Card>
-      </main>
+      </PageContainer>
     </ProtectedRoute>
   );
 }

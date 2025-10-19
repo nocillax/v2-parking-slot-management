@@ -65,9 +65,6 @@ const User = sequelize.define(
     default_vehicle_no: {
       type: DataTypes.STRING,
       allowNull: true,
-      validate: {
-        len: [1, 20],
-      },
     },
 
     role: {
@@ -211,23 +208,26 @@ User.prototype.getDefaultLocation = async function () {
   const area = await Area.findByPk(this.default_area_id, {
     include: [
       {
-        model: District,
-        include: [Division],
+        model: District, // The alias for this is 'district'
+        as: "district",
+        include: [
+          {
+            model: Division, // The alias for this is 'division'
+            as: "division",
+          },
+        ],
       },
     ],
   });
 
-  if (!area) return null;
+  if (!area || !area.district || !area.district.division) return null;
 
   return {
     division: {
-      id: area.District.Division.id,
-      name: area.District.Division.name,
+      id: area.district.division.id,
+      name: area.district.division.name,
     },
-    district: {
-      id: area.District.id,
-      name: area.District.name,
-    },
+    district: { id: area.district.id, name: area.district.name },
     area: {
       id: area.id,
       name: area.name,

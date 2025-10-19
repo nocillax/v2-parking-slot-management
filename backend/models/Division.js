@@ -83,4 +83,12 @@ Division.static = {
   },
 };
 
+// Define model relationships
+Division.associate = (models) => {
+  Division.hasMany(models.District, {
+    foreignKey: "division_id",
+    as: "districts",
+  });
+};
+
 export default Division;

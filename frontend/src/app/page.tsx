@@ -1,5 +1,6 @@
 "use client";
 
+import { PageContainer } from "@/components/layout/PageContainer";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { FacilityCard } from "@/components/dashboard/FacilityCard";
 import { AreaSelector } from "@/components/dashboard/AreaSelector";
@@ -72,53 +73,61 @@ export default function Home() {
 
   return (
     <ProtectedRoute>
-      <main className="container mx-auto flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold md:text-3xl">
-            Available Facilities
-          </h1>
-          <div className="flex items-center gap-4">
-            {selectedAreaName && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>Filtered by: {selectedAreaName}</span>
-                <button
-                  onClick={handleClearFilter}
-                  className="text-primary hover:underline"
-                >
-                  Clear
-                </button>
-              </div>
-            )}
-            <AreaSelector
-              selectedAreaId={selectedAreaId}
-              selectedAreaName={selectedAreaName}
-              onAreaSelect={handleAreaSelect}
-            />
+      <PageContainer>
+        <div className="space-y-6">
+          <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+              <p className="text-muted-foreground">
+                Find and reserve your next parking spot.
+              </p>
+            </div>
+            <div className="flex w-full items-center justify-end gap-4 md:w-auto">
+              {selectedAreaName && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>{selectedAreaName}</span>
+                  <button
+                    onClick={handleClearFilter}
+                    className="text-primary hover:underline"
+                  >
+                    (Clear)
+                  </button>
+                </div>
+              )}
+              <AreaSelector
+                selectedAreaId={selectedAreaId}
+                selectedAreaName={selectedAreaName}
+                onAreaSelect={handleAreaSelect}
+              />
+            </div>
           </div>
+
+          {loading && (
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-[200px] w-full" />
+              ))}
+            </div>
+          )}
+          {error && <p className="text-center text-red-500">{error}</p>}
+          {!loading && !error && facilities.length === 0 && (
+            <div className="flex h-40 items-center justify-center rounded-md border border-dashed">
+              <p className="text-muted-foreground">
+                {selectedAreaId
+                  ? `No facilities found in ${selectedAreaName}.`
+                  : "Select an area to see available facilities."}
+              </p>
+            </div>
+          )}
+          {!loading && !error && facilities.length > 0 && (
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+              {facilities.map((facility) => (
+                <FacilityCard key={facility.id} facility={facility} />
+              ))}
+            </div>
+          )}
         </div>
-        {loading && (
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-[200px] w-full" />
-            ))}
-          </div>
-        )}
-        {error && <p className="text-red-500">{error}</p>}
-        {!loading && !error && facilities.length === 0 && (
-          <p className="text-muted-foreground">
-            {selectedAreaId
-              ? `No facilities found in ${selectedAreaName}.`
-              : "No facilities found."}
-          </p>
-        )}
-        {!loading && !error && facilities.length > 0 && (
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-            {facilities.map((facility) => (
-              <FacilityCard key={facility.id} facility={facility} />
-            ))}
-          </div>
-        )}
-      </main>
+      </PageContainer>
     </ProtectedRoute>
   );
 }
