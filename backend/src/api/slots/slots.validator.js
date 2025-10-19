@@ -4,7 +4,7 @@ const slotSchema = Joi.object({
   slot_type: Joi.string()
     .valid("Normal", "VIP", "Handicapped", "Bike")
     .default("Normal"),
-  hourly_rate: Joi.number().min(0).required(),
+  hourly_rate: Joi.number().min(0).optional().allow(null),
   location_tag: Joi.string().optional(),
 });
 

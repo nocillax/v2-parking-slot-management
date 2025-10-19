@@ -7,9 +7,9 @@ import jwt from "jsonwebtoken";
 
 const {
   JWT_SECRET,
-  JWT_ACCESS_TOKEN_EXPIRES_IN,
+  JWT_EXPIRES_IN,
   JWT_REFRESH_TOKEN_SECRET,
-  JWT_REFRESH_TOKEN_EXPIRES_IN,
+  JWT_REFRESH_TOKEN_EXPIRATION,
 } = process.env;
 
 const SALT_ROUNDS = 10;
@@ -170,14 +170,14 @@ User.prototype.generateAccessToken = function () {
       role: this.role,
     },
     JWT_SECRET,
-    { expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN }
+    { expiresIn: JWT_EXPIRES_IN }
   );
 };
 
 // Generate Refresh Token
 User.prototype.generateRefreshToken = function () {
   return jwt.sign({ id: this.id }, JWT_REFRESH_TOKEN_SECRET, {
-    expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
+    expiresIn: JWT_REFRESH_TOKEN_EXPIRATION,
   });
 };
 

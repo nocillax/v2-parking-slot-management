@@ -29,15 +29,6 @@ export const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log("✅ Database connected successfully");
-
-    // Use { alter: true } during development to apply schema changes.
-    // This will add the 'Bike' ENUM value without dropping the tables.
-    // WARNING: This is not recommended for production. Use migrations instead.
-    // await sequelize.models.Slot.sync({ alter: true });
-    // await sequelize.models.Reservation.sync({ alter: true });
-    // console.log("✅ Slot and Waitlist models were synchronized successfully.");
-
-    // The full sync is commented out to avoid the 'divisions' table error for now.
   } catch (error) {
     console.error("❌ Database connection failed:", error);
     process.exit(1); // Exit if database connection fails

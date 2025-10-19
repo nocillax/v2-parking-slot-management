@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { initializeDatabase } from "#config/database.js";
 import cookieParser from "cookie-parser";
+import { syncApplicationModels } from "./models/index.js";
 import "#models/index.js";
 
 // Import routes
@@ -48,6 +49,8 @@ const startServer = async () => {
   try {
     // Initialize database first
     await initializeDatabase();
+
+    await syncApplicationModels();
 
     // Start Express server
     app.listen(PORT, () => {

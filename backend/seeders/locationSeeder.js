@@ -393,12 +393,15 @@ export const seedLocations = async () => {
 };
 
 // Run seed if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const { sequelize } = await import("../models/index.js");
-  await sequelize.sync({ alter: true });
-  await seedLocations();
-  await sequelize.close();
-  process.exit(0);
+// This check ensures the seeder only runs when you explicitly call `node seeders/locationSeeder.js`
+const isDirectRun = import.meta.url.endsWith(process.argv[1]);
+if (isDirectRun) {
+  (async () => {
+    const { sequelize } = await import("../models/index.js");
+    await seedLocations();
+    await sequelize.close();
+    process.exit(0);
+  })();
 }
 
 export default seedLocations;
