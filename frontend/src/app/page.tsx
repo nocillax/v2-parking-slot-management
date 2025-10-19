@@ -5,7 +5,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { FacilityCard } from "@/components/dashboard/FacilityCard";
 import { AreaSelector } from "@/components/dashboard/AreaSelector";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Facility } from "@/types";
+import { Facility } from "@/types/types";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";

@@ -42,3 +42,8 @@ export const authorize = (...roles) =>
     }
     next();
   });
+
+/**
+ * Middleware to check if the user has an 'admin' role.
+ */
+export const admin = authorize("admin");

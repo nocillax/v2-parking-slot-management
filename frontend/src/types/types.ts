@@ -1,3 +1,18 @@
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "user";
+  default_vehicle_no?: string;
+  default_division_id?: string;
+  default_district_id?: string;
+  default_area_id?: string;
+  latitude?: number;
+  longitude?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Slot {
   id: string;
   facility_id: string;

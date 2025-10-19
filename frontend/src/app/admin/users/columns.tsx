@@ -1,19 +1,11 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { User } from "@/types";
+import { User } from "@/types/types";
 import { Badge } from "@/components/ui/badge";
 import dayjs from "dayjs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export const columns: ColumnDef<User>[] = [
@@ -58,6 +50,10 @@ export const columns: ColumnDef<User>[] = [
     header: "Email",
   },
   {
+    accessorKey: "default_vehicle_no",
+    header: "Vehicle Number",
+  },
+  {
     accessorKey: "role",
     header: ({ column }) => {
       return (
@@ -95,37 +91,6 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const date = row.getValue("createdAt") as string;
       return <span>{dayjs(date).format("MMM D, YYYY")}</span>;
-    },
-  },
-  {
-    id: "actions",
-    header: () => <div className="text-right">Actions</div>,
-    cell: ({ row }) => {
-      const user = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[160px]">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => console.log("Edit user", user.id)}>
-              Edit user
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-600"
-              onClick={() => console.log("Delete user", user.id)}
-            >
-              Delete user
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
     },
   },
 ];

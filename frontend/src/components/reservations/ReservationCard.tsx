@@ -1,6 +1,6 @@
 "use client";
 
-import { Reservation } from "@/types";
+import { Reservation } from "@/types/types";
 import {
   Card,
   CardContent,

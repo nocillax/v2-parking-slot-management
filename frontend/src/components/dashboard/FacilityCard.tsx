@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Facility } from "@/types";
+import { Facility } from "@/types/types";
 import { SlotsDialog } from "./SlotsDialog";
 
 interface FacilityCardProps {

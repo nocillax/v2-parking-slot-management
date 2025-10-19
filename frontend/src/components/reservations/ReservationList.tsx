@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import api from "@/lib/api";
-import { Reservation } from "@/types";
+import { Reservation } from "@/types/types";
 import { ReservationCard } from "./ReservationCard";
 import {
   Select,

@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slot, Facility } from "@/types";
+import { Slot, Facility } from "@/types/types";
 import api from "@/lib/api";
 import { Car, Bike, Crown, Accessibility, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";

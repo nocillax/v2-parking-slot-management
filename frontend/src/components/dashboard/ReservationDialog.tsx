@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Facility } from "@/types";
+import { Facility } from "@/types/types";
 import api from "@/lib/api";
 import { Calendar, Clock, Car } from "lucide-react";
 

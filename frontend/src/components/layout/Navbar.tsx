@@ -5,7 +5,18 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LogOut, ParkingSquare, User as UserIcon } from "lucide-react";
+import {
+  ChevronDown,
+  LogOut,
+  ParkingSquare,
+  User as UserIcon,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -39,9 +50,26 @@ export function Navbar() {
                   My Reservations
                 </Link>
                 {user?.role === "admin" && (
-                  <Link href="/admin" className={linkStyles("/admin")}>
-                    Admin Panel
-                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "flex items-center gap-1 px-2 text-sm font-medium",
+                          pathname.startsWith("/admin")
+                            ? "text-foreground"
+                            : "text-foreground/60"
+                        )}
+                      >
+                        Admin <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/users">User Management</Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
               </>
             )}
